@@ -116,7 +116,7 @@ export default function App() {
         
         {/* COMPONENTES: TextInput, Switch */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>🔍 Buscar y Filtrar</Text>
+          <Text style={styles.cardTitle}>Buscar y Filtrar</Text>
           <TextInput
             placeholder="Ej. Tacos, Guacamole..."
             placeholderTextColor="#888"
@@ -140,7 +140,7 @@ export default function App() {
 
         {/* COMPONENTES: FlatList, Image, Pressable */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>🌮 Recomendaciones (FlatList)</Text>
+          <Text style={styles.cardTitle}>Recomendaciones (FlatList)</Text>
           <FlatList
             data={filteredPlatillos}
             keyExtractor={(item) => item.id}
@@ -161,7 +161,7 @@ export default function App() {
 
         {/* COMPONENTES: SectionList */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>📋 Menú por Categorías (SectionList)</Text>
+          <Text style={styles.cardTitle}>Menú por Categorías (SectionList)</Text>
           <SectionList
             sections={categoriasSection}
             keyExtractor={(item) => `sec-${item.id}`}
@@ -181,20 +181,20 @@ export default function App() {
 
         {/* COMPONENTES: Feedback, Controles de usuario */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>⭐ Feedback del Turista</Text>
+          <Text style={styles.cardTitle}>Feedback del Turista</Text>
           <Text style={styles.textLabel}>¿Fue útil la recomendación del motor?</Text>
           <View style={styles.feedbackRow}>
             <Pressable
               style={[styles.btnThumb, thumbUp && styles.btnThumbActiveUp]}
               onPress={() => { setThumbUp(true); setThumbDown(false); }}
             >
-              <Text style={[styles.btnThumbText, thumbUp && styles.btnThumbTextActive]}>👍 Útil</Text>
+              <Text style={[styles.btnThumbText, thumbUp && styles.btnThumbTextActive]}>Útil</Text>
             </Pressable>
             <Pressable
               style={[styles.btnThumb, thumbDown && styles.btnThumbActiveDown]}
               onPress={() => { setThumbDown(true); setThumbUp(false); }}
             >
-              <Text style={[styles.btnThumbText, thumbDown && styles.btnThumbTextActive]}>👎 No útil</Text>
+              <Text style={[styles.btnThumbText, thumbDown && styles.btnThumbTextActive]}>No útil</Text>
             </Pressable>
           </View>
 
