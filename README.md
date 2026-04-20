@@ -1,7 +1,7 @@
-﻿# MexFood (FIFA 2026) - Prototipo UI
+# MexFood (FIFA 2026) - ReacNative
 
-Bienvenido al repositorio del **Motor de Recomendación de Comida Mexicana para Turistas**. 
-Este proyecto es un prototipo interactivo desarrollado en **React Native (Expo)** para validar la interfaz de usuario, proponer componentes y testear la experiencia de recomendación del usuario final.
+El repositorio del **Motor de Recomendación de Comida Mexicana para Turistas**. 
+Esta prototipo contiene la UI interactiva desarrollado en **React Native (Expo)** 
 
 ## ¿Qué demuestra este prototipo?
 - **Búsqueda y Filtros**: Componentes TextInput interactivos y Switch para filtrado (ej. Apto Vegetariano).
@@ -14,12 +14,12 @@ Este proyecto es un prototipo interactivo desarrollado en **React Native (Expo)*
 
 1. **Instalar dependencias**:
    Asegúrate de tener Node.js instalado y ejecuta en esta carpeta:
-   `ash
+   `
    npm install
    `
 
 2. **Iniciar el servidor de desarrollo**:
-   `ash
+   `
    npx expo start
    `
 
