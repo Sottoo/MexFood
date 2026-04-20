@@ -14,12 +14,12 @@ Esta prototipo contiene la UI interactiva desarrollado en **React Native (Expo)*
 
 1. **Instalar dependencias**:
    Asegúrate de tener Node.js instalado y ejecuta en esta carpeta:
-   `ash
+   `
    npm install
    `
 
 2. **Iniciar el servidor de desarrollo**:
-   `ash
+   `
    npx expo start
    `
 
