@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, useColorScheme, ScrollView } from 'react-native
 import { Colors, MayanColors } from '@/src/constants/theme';
 import { Card } from '@/src/components/Card';
 import { Ionicons } from '@expo/vector-icons';
-import { Header } from '@/src/components/Header';
+import { Header } from '@/src/screens/home/components/Header';
 import { useTranslation } from 'react-i18next';
 
 export default function HomeScreen() {

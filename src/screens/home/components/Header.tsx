@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, ImageBackground, Image, TextInput, TouchableOpa
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { MayanColors } from '@/src/constants/theme';
+import { useTranslation } from 'react-i18next';
 
 export function Header() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   return (
     <ImageBackground
@@ -20,7 +22,7 @@ export function Header() {
         <View style={styles.topRow}>
           <View style={styles.badge}>
             <Ionicons name="trophy" size={14} color={MayanColors.gold} />
-            <Text style={styles.badgeText}>APP OFICIAL '26</Text>
+            <Text style={styles.badgeText}>{t('home.header.badge')}</Text>
           </View>
           <View style={styles.flagContainer}>
             <Text style={styles.flagEmoji}>🇲🇽</Text>
@@ -38,7 +40,7 @@ export function Header() {
             <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Explorar platillos y sedes..."
+              placeholder={t('home.header.search_placeholder')}
               placeholderTextColor="#999"
             />
           </View>

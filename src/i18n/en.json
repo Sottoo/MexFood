@@ -11,6 +11,10 @@
         "start_button": "Get Started"
     },
     "home": {
+        "header": {
+            "badge": "OFFICIAL APP '26",
+            "search_placeholder": "Explore dishes and venues..."
+        },
         "sections": {
             "official_services": "OFFICIAL SERVICES"
         },

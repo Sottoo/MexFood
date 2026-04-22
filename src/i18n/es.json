@@ -11,6 +11,10 @@
         "start_button": "Comenzar"
     },
     "home": {
+        "header": {
+            "badge": "APP OFICIAL '26",
+            "search_placeholder": "Explorar platillos y sedes..."
+        },
         "sections": {
             "official_services": "SERVICIOS OFICIALES"
         },
