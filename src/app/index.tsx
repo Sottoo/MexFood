@@ -13,7 +13,7 @@ export default function WelcomeScreen() {
 
   const handleStart = () => {
     // Navigate to home screen and prevent going back
-    router.replace('/home');
+    router.replace('/(tabs)/home');
   };
 
   return (

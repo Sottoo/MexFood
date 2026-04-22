@@ -15,8 +15,8 @@ export const Button = ({ title, variant = 'primary', style, textStyle, ...props 
   const isDark = colorScheme === 'dark';
 
   const backgroundColor = variant === 'primary' ? MayanColors.jade : 'transparent';
-  const textColor = variant === 'primary' 
-    ? '#ffffff' 
+  const textColor = variant === 'primary'
+    ? '#ffffff'
     : Colors[isDark ? 'dark' : 'light'].text;
 
   const borderColor = variant === 'secondary' ? MayanColors.jade : 'transparent';

@@ -26,9 +26,9 @@ export default function RootLayout() {
         }} 
       />
       <Stack.Screen 
-        name="home" 
+        name="(tabs)" 
         options={{ 
-          title: 'MexFood',
+          headerShown: false, // Hide native header since we built a custom one
           headerBackVisible: false, // Don't allow going back to welcome
           gestureEnabled: false, // Prevent swiping back on iOS
         }} 
