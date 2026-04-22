@@ -4,8 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Button } from '@/src/components/Button';
 import { Colors, MayanColors } from '@/src/constants/theme';
+import { useTranslation } from 'react-i18next';
 
 export default function WelcomeScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const isDark = colorScheme === 'dark';
@@ -32,17 +34,17 @@ export default function WelcomeScreen() {
         {/* Text Section */}
         <View style={styles.textContainer}>
           <Text style={[styles.title, { color: theme.text }]}>
-            MexFood
+            {t('welcome.title')}
           </Text>
           <Text style={[styles.subtitle, { color: theme.icon }]}>
-            Recomendacion de comida mexicana de acuerdo a tu cuerpo y tus gustos.
+            {t('welcome.subtitle')}
           </Text>
         </View>
 
         {/* Action Section */}
         <View style={styles.actionContainer}>
           <Button
-            title="Comenzar"
+            title={t('welcome.start_button')}
             onPress={handleStart}
             style={styles.button}
           />

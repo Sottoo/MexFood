@@ -4,13 +4,15 @@ import { Colors, MayanColors } from '@/src/constants/theme';
 import { Card } from '@/src/components/Card';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '@/src/components/Header';
+import { useTranslation } from 'react-i18next';
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
 
   return (
-    <ScrollView 
+    <ScrollView
       style={[styles.container, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.scrollContent}
       bounces={false}
@@ -21,43 +23,43 @@ export default function HomeScreen() {
         <View style={styles.sectionHeader}>
           <Ionicons name="trophy" size={20} color={MayanColors.jadeDark} style={styles.sectionIcon} />
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            SERVICIOS OFICIALES
+            {t('home.sections.official_services')}
           </Text>
         </View>
 
-      <View style={styles.gridContainer}>
-        <View style={styles.cardWrapper}>
-          <Card 
-            title="Traductor Cancha" 
-            description="Muestra tus alergias al mesero" 
-            icon="g-translate" 
-            color="#FF9800"
-          />
-        </View>
-        <View style={styles.cardWrapper}>
-          <Card 
-            title="Mapa de Sedes" 
-            description="Zonas fan y restaurantes" 
-            icon="map" 
-            color="#42A5F5"
-          />
-        </View>
-        <View style={styles.cardWrapper}>
-          <Card 
-            title="Tu Alineación" 
-            description="Platillos guardados listos" 
-            icon="security" 
-            color={MayanColors.jade}
-          />
-        </View>
-        <View style={styles.cardWrapper}>
-          <Card 
-            title="Perfil de Fan" 
-            description="Configurar intolerancias y dieta" 
-            icon="settings" 
-            color="#9E9E9E"
-          />
-        </View>
+        <View style={styles.gridContainer}>
+          <View style={styles.cardWrapper}>
+            <Card
+              title={t('home.cards.translator.title')}
+              description={t('home.cards.translator.description')}
+              icon="g-translate"
+              color="#FF9800"
+            />
+          </View>
+          <View style={styles.cardWrapper}>
+            <Card
+              title={t('home.cards.map.title')}
+              description={t('home.cards.map.description')}
+              icon="map"
+              color="#42A5F5"
+            />
+          </View>
+          <View style={styles.cardWrapper}>
+            <Card
+              title={t('home.cards.lineup.title')}
+              description={t('home.cards.lineup.description')}
+              icon="security"
+              color={MayanColors.jade}
+            />
+          </View>
+          <View style={styles.cardWrapper}>
+            <Card
+              title={t('home.cards.profile.title')}
+              description={t('home.cards.profile.description')}
+              icon="settings"
+              color="#9E9E9E"
+            />
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -95,7 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   cardWrapper: {
-    width: '48.5%', // Slightly wider
+    width: '48.5%',
     marginBottom: 16,
   },
 });

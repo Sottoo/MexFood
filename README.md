@@ -43,6 +43,11 @@ MexFood/
     ├── hooks/               # CUSTOM HOOKS GLOBALES
     │   └── useThemeColor.ts # (U otros hooks compartidos)
     │
+    ├── i18n/                # CONFIGURACIÓN DE IDIOMAS (react-i18next)
+    │   ├── index.ts         # Inicializador y configuración principal
+    │   ├── es.json          # Diccionario Español
+    │   └── en.json          # Diccionario Inglés
+    │
     └── screens/             # COMPONENTES ESPECÍFICOS POR PANTALLA
         ├── home/
         │   └── components/  # Componentes exclusivos de la pantalla "Explorar"
@@ -79,6 +84,18 @@ Para mantener la consistencia y escalabilidad de la aplicación, sigue estas reg
   ```
 - **Identidad Maya:** Para elementos de marca (botones, íconos de sección, detalles), utiliza la paleta `MayanColors` definida en `theme.ts` (ej. `MayanColors.jade`, `MayanColors.gold`).
 - **Interactividad (Pressable vs TouchableOpacity):** Para elementos clickeables complejos como tarjetas, usa `Pressable` y gestiona el estado visual de presionado mediante el evento estético (ej. superponer una capa semitransparente) para evitar que las sombras nativas de Android se rompan o se transparenten erróneamente ("shadow bleeding").
+
+### 4. Internacionalización (i18n)
+- **Cero Textos Quemados:** La aplicación está configurada para ser multilingüe (`es`, `en`) mediante `react-i18next` y `expo-localization`. Los diccionarios viven en `src/i18n/`.
+- **Cómo implementarlo:** Siempre importa el hook `useTranslation` y utiliza la función `t()` llamando a la clave correspondiente en los archivos JSON.
+  ```tsx
+  import { useTranslation } from 'react-i18next';
+  
+  export default function MiPantalla() {
+    const { t } = useTranslation();
+    return <Text>{t('mi_clave_json')}</Text>;
+  }
+  ```
 
 ---
 

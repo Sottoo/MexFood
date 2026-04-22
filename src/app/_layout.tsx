@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { Colors } from '@/src/constants/theme';
-
+import '@/src/i18n';
 export default function RootLayout() {
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
@@ -19,19 +19,19 @@ export default function RootLayout() {
         },
       }}
     >
-      <Stack.Screen 
-        name="index" 
-        options={{ 
+      <Stack.Screen
+        name="index"
+        options={{
           headerShown: false // Hide header for welcome screen
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="(tabs)" 
-        options={{ 
+      <Stack.Screen
+        name="(tabs)"
+        options={{
           headerShown: false, // Hide native header since we built a custom one
           headerBackVisible: false, // Don't allow going back to welcome
           gestureEnabled: false, // Prevent swiping back on iOS
-        }} 
+        }}
       />
     </Stack>
   );

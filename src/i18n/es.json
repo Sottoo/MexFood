@@ -1,0 +1,36 @@
+{
+    "tabs": {
+        "explore": "EXPLORAR",
+        "map": "MAPA",
+        "saved": "GUARDADOS",
+        "pass": "MI PASE"
+    },
+    "welcome": {
+        "title": "MexFood",
+        "subtitle": "Recomendación de comida mexicana de acuerdo a tu cuerpo y tus gustos.",
+        "start_button": "Comenzar"
+    },
+    "home": {
+        "sections": {
+            "official_services": "SERVICIOS OFICIALES"
+        },
+        "cards": {
+            "translator": {
+                "title": "Traductor Cancha",
+                "description": "Muestra tus alergias al mesero"
+            },
+            "map": {
+                "title": "Mapa de Sedes",
+                "description": "Zonas fan y restaurantes"
+            },
+            "lineup": {
+                "title": "Tu Alineación",
+                "description": "Platillos guardados listos"
+            },
+            "profile": {
+                "title": "Perfil de Fan",
+                "description": "Configurar intolerancias y dieta"
+            }
+        }
+    }
+}

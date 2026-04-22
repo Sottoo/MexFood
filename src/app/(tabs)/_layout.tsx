@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { View, StyleSheet } from 'react-native';
 import { MayanColors } from '@/src/constants/theme';
 import { useColorScheme } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 // Componente para el ícono de la pestaña con la barrita roja
 function TabBarIcon({ name, color, focused }: any) {
@@ -18,6 +19,7 @@ function TabBarIcon({ name, color, focused }: any) {
 export default function TabLayout() {
   const colorScheme = useColorScheme() ?? 'light';
   const isDark = colorScheme === 'dark';
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -48,28 +50,28 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'EXPLORAR',
+          title: t('tabs.explore'),
           tabBarIcon: (props) => <TabBarIcon name={props.focused ? "trophy" : "trophy-outline"} {...props} />,
         }}
       />
       <Tabs.Screen
         name="mapa"
         options={{
-          title: 'MAPA',
+          title: t('tabs.map'),
           tabBarIcon: (props) => <TabBarIcon name={props.focused ? "map" : "map-outline"} {...props} />,
         }}
       />
       <Tabs.Screen
         name="guardados"
         options={{
-          title: 'GUARDADOS',
+          title: t('tabs.saved'),
           tabBarIcon: (props) => <TabBarIcon name={props.focused ? "shield" : "shield-outline"} {...props} />,
         }}
       />
       <Tabs.Screen
         name="pase"
         options={{
-          title: 'MI PASE',
+          title: t('tabs.pass'),
           tabBarIcon: (props) => <TabBarIcon name={props.focused ? "ticket" : "ticket-outline"} {...props} />,
         }}
       />
@@ -86,10 +88,10 @@ const styles = StyleSheet.create({
   },
   activeIndicator: {
     position: 'absolute',
-    top: -5, // Pegado al borde superior del tabBar
+    top: -5,
     width: 32,
     height: 4,
-    backgroundColor: '#E32A2A', // Rojo intenso como en el diseño
+    backgroundColor: '#E32A2A',
     borderBottomLeftRadius: 4,
     borderBottomRightRadius: 4,
   },

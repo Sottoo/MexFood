@@ -1,0 +1,36 @@
+{
+    "tabs": {
+        "explore": "EXPLORE",
+        "map": "MAP",
+        "saved": "SAVED",
+        "pass": "MY PASS"
+    },
+    "welcome": {
+        "title": "MexFood",
+        "subtitle": "Mexican food recommendations tailored to your body and tastes.",
+        "start_button": "Get Started"
+    },
+    "home": {
+        "sections": {
+            "official_services": "OFFICIAL SERVICES"
+        },
+        "cards": {
+            "translator": {
+                "title": "Pitch Translator",
+                "description": "Show your allergies to the waiter"
+            },
+            "map": {
+                "title": "Venue Map",
+                "description": "Fan zones and restaurants"
+            },
+            "lineup": {
+                "title": "Your Lineup",
+                "description": "Saved dishes ready to go"
+            },
+            "profile": {
+                "title": "Fan Profile",
+                "description": "Set dietary needs and preferences"
+            }
+        }
+    }
+}
