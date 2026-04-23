@@ -1,3 +1,4 @@
+import 'react-native-url-polyfill/auto'; // requerido por @supabase/supabase-js en RN
 import { Stack } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { Colors } from '@/src/constants/theme';

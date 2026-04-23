@@ -5,6 +5,7 @@ import { Card } from '@/src/components/Card';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '@/src/screens/home/components/Header';
 import { useTranslation } from 'react-i18next';
+import { DebugPanel } from '@/src/app/debug';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -61,6 +62,9 @@ export default function HomeScreen() {
             />
           </View>
         </View>
+
+        {/* === Debug panel: backend end-to-end check. Borrar cuando las pantallas reales estén listas. === */}
+        <DebugPanel />
       </View>
     </ScrollView>
   );
