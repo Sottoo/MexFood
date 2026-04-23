@@ -36,5 +36,26 @@
                 "description": "Configurar intolerancias y dieta"
             }
         }
+    },
+    "map_screen": {
+        "title": "MexFood FIFA 2026",
+        "subtitle": "Recomendaciones para turistas",
+        "language": {
+            "title": "Idioma"
+        },
+        "map": {
+            "title": "Mapa y geolocalización",
+            "use_location": "Usar mi ubicación"
+        },
+        "profile": {
+            "title": "Perfil para recomendación",
+            "favorites": "Favoritos (coma separada)",
+            "avoid": "Ingredientes a evitar (coma separada)",
+            "spicy": "Tolerancia al picante",
+            "spicy_low": "bajo",
+            "spicy_medium": "medio",
+            "spicy_high": "alto",
+            "sensitive": "Estómago sensible..."
+        }
     }
 }

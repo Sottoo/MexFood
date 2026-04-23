@@ -36,5 +36,26 @@
                 "description": "Set dietary needs and preferences"
             }
         }
+    },
+    "map_screen": {
+        "title": "MexFood FIFA 2026",
+        "subtitle": "Tourist recommendations",
+        "language": {
+            "title": "Language"
+        },
+        "map": {
+            "title": "Map and geolocation",
+            "use_location": "Use my location"
+        },
+        "profile": {
+            "title": "Recommendation profile",
+            "favorites": "Favorites (comma separated)",
+            "avoid": "Ingredients to avoid (comma separated)",
+            "spicy": "Spicy tolerance",
+            "spicy_low": "low",
+            "spicy_medium": "medium",
+            "spicy_high": "high",
+            "sensitive": "Sensitive stomach..."
+        }
     }
 }
