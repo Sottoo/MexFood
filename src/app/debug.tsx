@@ -39,7 +39,7 @@ const PRESETS: PerfilPreset[] = [
     nombre: "Vegetariano · CDMX · picante bajo",
     perfil: {
       ...perfilPorDefecto(),
-      dieta: { vegetariano: true, vegano: false, pescetariano: false },
+      dieta: { vegetariano: true, vegano: false, pescetariano: false, keto: false },
       evitaCerdo: true,
       toleranciaPicante: "bajo",
       alergias: ["cacahuate"],
@@ -50,7 +50,7 @@ const PRESETS: PerfilPreset[] = [
     nombre: "Vegano · Oaxaca · picante medio",
     perfil: {
       ...perfilPorDefecto(),
-      dieta: { vegetariano: true, vegano: true, pescetariano: false },
+      dieta: { vegetariano: true, vegano: true, pescetariano: false, keto: false },
       evitaCerdo: true,
       evitaMariscos: true,
       toleranciaPicante: "medio",

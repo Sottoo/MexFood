@@ -1,8 +1,9 @@
 # Roadmap: qué le falta a la app final
 
-Estado hoy: la plomería backend → front está instalada y probada con
-un panel de debug embebido en home. Ninguna pantalla de *producto*
-consume aún los hooks. Esto es la lista ordenada de lo que hay que
+Estado hoy: plomería instalada + questionnaire/onboarding funcional +
+gate de perfil (si ya hay perfil guardado, la welcome se salta y
+entra directo a tabs). Todavía falta el consumo de los hooks en home,
+detalle y scanner. Esto es la lista ordenada de lo que hay que
 construir del lado del front para tener un producto demostrable.
 
 Todo lo que sigue usa los hooks/clientes ya documentados en
@@ -14,38 +15,38 @@ ni a Gemini directamente — todo pasa por `@/src/lib/hooks` y
 
 ## Prioridad 1 — Sin esto no hay demo
 
-### 1.1 Onboarding / formulario de perfil
+### 1.1 Onboarding / formulario de perfil — ✅ HECHO
 
-**Qué es:** una secuencia de pantallas (o una sola con secciones
-colapsables) donde el usuario configura su `Perfil`.
+Questionnaire de 8 pasos en [src/app/questionnaire.tsx](../src/app/questionnaire.tsx):
 
-**Campos mínimos:**
-- Dieta (radio: ninguna / vegetariano / vegano / pescetariano)
-- Alergias (multi-select: cacahuate, mariscos, lácteos, gluten, huevo, soya, frutos secos)
-- Evita cerdo (toggle)
-- Evita alcohol (toggle)
-- Evita mariscos (toggle)
-- Tolerancia a picante (radio: bajo / medio / alto)
-- Estómago sensible (toggle — bonus para platillos digestivos)
-- Estado actual (dropdown de estados mexicanos — activa bonus regional)
-- Idioma (radio: español / English — sincronizar con i18n)
+| Paso | Campo del Perfil |
+|---|---|
+| 0 · Alergias | `alergias[]` (tag input con sugerencias) |
+| 1 · Dieta | `dieta.vegano`, `dieta.vegetariano` (vegano implica vegetariano), `dieta.keto` |
+| 2 · Ingredientes que consumes | `restricciones.sinLacteos`, `evitaCerdo`, `restricciones.sinGluten`, `evitaMariscos`, `evitaAlcohol` |
+| 3 · Tolerancia a picante | `toleranciaPicante` (mapeo 1-5 → bajo/medio/alto) |
+| 4 · Restricciones culturales | agrega a `ingredientesEvitar[]` |
+| 5 · Alimentos a evitar | agrega a `ingredientesEvitar[]` |
+| 6 · Estado actual | `estadoActual` (text input + sugerencias de 15 estados) |
+| 7 · Estómago sensible | `estomagoSensible` (sí/no) |
 
-**Campos opcionales (avanzado):**
-- Ingredientes a evitar (text input multi)
-- Ingredientes favoritos (text input multi)
-- Restricciones: sin gluten, sin lácteos (toggles separados por si no es alergia)
+Al finalizar también sincroniza `idioma` con `i18n.language`.
 
-**Persistencia:** el hook `usePerfil()` ya maneja guardado en
-AsyncStorage. Solo llamas `guardar(perfil)` al terminar.
+**Gating:** [src/app/index.tsx](../src/app/index.tsx) checa si hay perfil en
+AsyncStorage con `usePerfil()`. Si hay → `router.replace('/(tabs)/home')`.
+Si no → muestra welcome y el usuario pasa al questionnaire.
 
-**Routing:** el root `_layout.tsx` debe chequear si hay perfil:
-```tsx
-const { perfil, cargando } = usePerfil();
-if (cargando) return <Splash />;
-if (!perfil) return <Redirect href="/onboarding" />;
-```
-
-**Esfuerzo:** alto (4-6h). Es la pantalla más grande de la app.
+**Lo que sigue pendiente del onboarding:**
+- `dieta.pescetariano` no se expone en el form (low priority — nadie lo pidió).
+- `ingredientesFavoritos` no se captura — podría agregarse como paso 8 con
+  tag input similar a "avoid". Actualmente los usuarios no pueden favoritear
+  queso/aguacate/etc. para boost de score. **Sugerencia:** agregar un paso
+  opcional "¿Tus ingredientes favoritos?" usando el componente `TagInput`
+  existente.
+- Editar perfil existente: hoy no hay un botón para volver al questionnaire
+  desde la app. **Sugerencia:** desde la tab "Ajustes" o desde "Mi Pase",
+  agregar botón "Editar preferencias" que haga `router.push('/questionnaire')`
+  (push, no replace, para que conserve el back).
 
 ---
 
@@ -280,18 +281,60 @@ nuevas respeten el tema (usar `Colors[colorScheme]` de
 
 Si fuera un único dev, este es el orden que minimiza bloqueos:
 
-1. **Sincronización idioma** (2.1) — 20 min, habilita que las frases
-   del LLM respeten i18n desde el día 1.
-2. **Onboarding / perfil** (1.1) — todo lo demás depende de tener
-   `Perfil` en AsyncStorage.
-3. **Home con recomendaciones** (1.2) — valida toda la cadena
-   perfil → catálogo → recomendaciones → render.
-4. **Detalle de platillo** (1.3) — activa la capa LLM (explicación
-   + frases) y feedback.
-5. **Scanner** (1.4) — la estrella, pero depende de que el detalle
-   esté listo para navegación desde item matcheado.
+1. ~~**Sincronización idioma** (2.1) — 20 min.~~ ✅ Incluido en questionnaire.
+2. ~~**Onboarding / perfil** (1.1).~~ ✅ Hecho.
+3. **Home con recomendaciones** (1.2) — **siguiente paso lógico.**
+   Borrar `DebugPanel` de home.tsx y reemplazar con la lista real.
+4. **Detalle de platillo** (1.3) — activa la capa LLM.
+5. **Scanner** (1.4) — la estrella.
 6. **Offline + splash** (2.3, 2.4) — polish.
 7. **Guardados** (2.2) — bonus.
 
-Dos personas en paralelo: uno onboarding+home, otro detalle+scanner.
-Se juntan en prioridad 2.
+Dos personas en paralelo: uno home+detalle, otro scanner. Se juntan en prioridad 2.
+
+---
+
+## Sugerencias sobre el questionnaire actual
+
+Cosas que se pulieron durante la integración (2026-04-23) y notas para quien
+lo mantenga:
+
+### Cambios que ya están aplicados
+- **Mapeo de diets:** vegano ahora implica vegetariano (antes solo seteaba
+  `vegano: true` y la precedencia del backend quedaba confusa).
+- **Keto:** antes se descartaba silenciosamente, ahora se mapea a
+  `dieta.keto: true` y el backend aplica penalizaciones de score a carbos.
+- **"Carne" → "Cerdo":** el checkbox renombrado porque el backend tiene
+  `evitaCerdo` específicamente para cerdo; "carne en general" ya lo cubre
+  la dieta vegetariana del paso anterior.
+- **Alcohol:** nuevo checkbox, mapea a `evitaAlcohol`.
+- **Estado actual y estómago sensible:** nuevos pasos al final.
+- **Idioma:** se lee de `i18n.language` al finalizar y se guarda en
+  `perfil.idioma`, que es lo que decide el idioma de las frases del LLM.
+
+### Sugerencias para mejorar UX
+1. **"Editar preferencias"** desde algún lugar de la app — hoy el perfil
+   es inmutable después del onboarding (el gate redirige si ya existe).
+2. **Progress indicator** más descriptivo que solo la barra: "Paso 3 de 8"
+   o iconos por categoría.
+3. **Skip** para los pasos opcionales (estado actual, cultural, avoid)
+   por si el usuario quiere ir rápido.
+4. **Validación ligera** en el paso de estado actual: autocompletado
+   cuando escriba "Ciudad" debería sugerir "Ciudad de México".
+5. **Tema oscuro** — el form ya respeta `useColorScheme`, pero el tema
+   oscuro del chip activo podría tener más contraste (ahora es
+   `MayanColors.jade` sobre fondo oscuro, puede saturar).
+6. **Pescetariano como opción** — agregar `{id: 'pescetarian', ...}` a
+   `dietOptions`. Mapeo: `dieta.pescetariano = diet === 'pescetarian'`.
+7. **Ingredientes favoritos** — paso 8 opcional con TagInput, mapea a
+   `ingredientesFavoritos[]` (bonus de score +5 por coincidencia, tope +15).
+
+### Limitaciones conocidas
+- Si el usuario elige "keto" + "vegana" no se puede simultáneamente (son
+  radio, no checkboxes). El backend sí soporta combinarlas. Si quieren
+  habilitarlo, el paso 1 debería permitir multi-select para keto por
+  separado, con vegan/vegetarian/none como radio aparte.
+- El estado actual es un text input libre — el backend compara con
+  `includes` normalizado, así que "CDMX" no matchearía "Ciudad de México"
+  (se pierde el bonus regional). **Sugerencia:** o restringir a las
+  sugerencias, o agregar alias en el catálogo.

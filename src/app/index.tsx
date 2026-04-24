@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, useColorScheme } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Image, useColorScheme, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Button } from '@/src/components/Button';
 import { Colors, MayanColors } from '@/src/constants/theme';
 import { useTranslation } from 'react-i18next';
+import { usePerfil } from '@/src/lib/hooks';
 
 export default function WelcomeScreen() {
   const { t } = useTranslation();
@@ -13,10 +14,32 @@ export default function WelcomeScreen() {
   const isDark = colorScheme === 'dark';
   const theme = Colors[isDark ? 'dark' : 'light'];
 
+  // Gate: si ya hay perfil guardado, saltar welcome + questionnaire y
+  // entrar directo a la app. Evita que el usuario tenga que re-configurar
+  // cada vez que abre la app.
+  const { perfil, cargando } = usePerfil();
+
+  useEffect(() => {
+    if (!cargando && perfil) {
+      router.replace('/(tabs)/home');
+    }
+  }, [cargando, perfil, router]);
+
   const handleStart = () => {
-    // Navigate to questionnaire screen and prevent going back
     router.replace('/questionnaire');
   };
+
+  // Mientras cargamos AsyncStorage o mientras re-dirigimos al home,
+  // mostramos un loader liviano para no parpadear la welcome screen.
+  if (cargando || perfil) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+          <ActivityIndicator size="large" color={MayanColors.jade} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>

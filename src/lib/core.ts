@@ -73,7 +73,7 @@ export async function hashBase64(base64: string): Promise<string> {
 export function perfilPorDefecto(): Perfil {
   return {
     alergias: [],
-    dieta: { vegetariano: false, vegano: false, pescetariano: false },
+    dieta: { vegetariano: false, vegano: false, pescetariano: false, keto: false },
     restricciones: { sinGluten: false, sinLacteos: false },
     evitaCerdo: false,
     evitaAlcohol: false,

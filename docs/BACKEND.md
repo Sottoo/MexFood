@@ -62,6 +62,7 @@ interface Perfil {
     vegetariano: boolean;
     vegano: boolean;
     pescetariano: boolean;
+    keto: boolean;                            // soft signal: penaliza carbos
   };
   restricciones: {
     sinGluten: boolean;
@@ -79,9 +80,14 @@ interface Perfil {
 }
 ```
 
-**Precedencia de dieta:** vegano > pescetariano > vegetariano.
-Activar `vegano: true` implica vegetariano automáticamente a efectos
-de filtrado.
+**Precedencia de dieta:** vegano > pescetariano > vegetariano. El questionnaire
+debería setear `vegano: true` + `vegetariano: true` cuando el usuario elige vegana
+(vegano implica vegetariano en nuestro contrato).
+
+**Keto** es ortogonal a las otras dietas — se puede combinar con vegano
+(keto-vegano es viable aunque muy restrictivo). Keto no bloquea platillos;
+aplica penalizaciones de score a variantes con carbos (tortilla, arroz, pan,
+masa, azúcar, harina, gluten → -20; frijol, maíz, elote, plátano, papa → -10).
 
 **Persistencia:** el front lo guarda en AsyncStorage con clave
 `mexfood:perfil:v1`. El hook `usePerfil()` ya lo maneja.

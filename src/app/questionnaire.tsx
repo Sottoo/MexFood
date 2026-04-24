@@ -158,7 +158,7 @@ const SpiceSelector = ({ value, onChange, theme, isDark, t }: any) => {
 
 
 export default function QuestionnaireScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const isDark = colorScheme === 'dark';
@@ -170,16 +170,22 @@ export default function QuestionnaireScreen() {
   const [step, setStep] = useState(0);
   const [allergies, setAllergies] = useState<string[]>([]);
   const [diet, setDiet] = useState('none');
-  const [consumes, setConsumes] = useState<string[]>(['dairy', 'meat', 'gluten', 'seafood']);
+  // "pork" reemplazó al antiguo "meat" — la semántica del backend es
+  // `evitaCerdo`, no "evita toda carne". Si alguien no come NADA de
+  // carne debería elegir la dieta vegetariana en el paso anterior.
+  const [consumes, setConsumes] = useState<string[]>(['dairy', 'pork', 'gluten', 'seafood', 'alcohol']);
   const [spicyLevel, setSpicyLevel] = useState(3);
   const [cultural, setCultural] = useState<string[]>([]);
   const [avoid, setAvoid] = useState<string[]>([]);
+  const [estadoActual, setEstadoActual] = useState<string>('');
+  const [estomagoSensible, setEstomagoSensible] = useState<boolean>(false);
 
   // Animations
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  const totalSteps = 6;
+  // Total: pasos viejos (allergies, diet, consumes, spicy, cultural, avoid) + 2 nuevos
+  const totalSteps = 8;
 
   // Options Definitions
   const dietOptions = [
@@ -189,11 +195,25 @@ export default function QuestionnaireScreen() {
     { id: 'keto', label: t('questionnaire.diet_options.keto', 'Keto'), icon: '🥑' },
   ];
 
+  // Mapea a flags específicos del Perfil del backend:
+  //   dairy   → restricciones.sinLacteos
+  //   pork    → evitaCerdo (cerdo específicamente, no "toda carne")
+  //   gluten  → restricciones.sinGluten
+  //   seafood → evitaMariscos
+  //   alcohol → evitaAlcohol
   const ingredientOptions = [
     { id: 'dairy', label: t('questionnaire.ingredients_options.dairy', 'Lácteos'), icon: '🥛' },
-    { id: 'meat', label: t('questionnaire.ingredients_options.meat', 'Carne'), icon: '🥩' },
+    { id: 'pork', label: t('questionnaire.ingredients_options.pork', 'Cerdo'), icon: '🐷' },
     { id: 'gluten', label: t('questionnaire.ingredients_options.gluten', 'Gluten'), icon: '🥖' },
     { id: 'seafood', label: t('questionnaire.ingredients_options.seafood', 'Mariscos'), icon: '🦐' },
+    { id: 'alcohol', label: t('questionnaire.ingredients_options.alcohol', 'Alcohol'), icon: '🍺' },
+  ];
+
+  // Estados turísticos mexicanos como sugerencias (usuario puede escribir libre).
+  const estadosTuristicos = [
+    'Ciudad de México', 'Jalisco', 'Oaxaca', 'Yucatán', 'Quintana Roo',
+    'Puebla', 'Nuevo León', 'Guanajuato', 'Veracruz', 'Chiapas',
+    'Baja California', 'Baja California Sur', 'Michoacán', 'Sinaloa', 'Nayarit',
   ];
 
   const commonAllergies = [
@@ -258,33 +278,45 @@ export default function QuestionnaireScreen() {
   };
 
   const handleFinish = async () => {
-    const isVegetarian = diet === 'vegetarian';
     const isVegan = diet === 'vegan';
-    
+    const isVegetarian = diet === 'vegetarian' || isVegan; // vegano implica vegetariano
+    const isKeto = diet === 'keto';
+
     const sinLacteos = !consumes.includes('dairy');
     const sinGluten = !consumes.includes('gluten');
     const evitaMariscos = !consumes.includes('seafood');
-    const evitaCarne = !consumes.includes('meat');
+    const evitaCerdo = !consumes.includes('pork');
+    const evitaAlcohol = !consumes.includes('alcohol');
 
     // Map 1-5 to bajo, medio, alto
-    let toleranciaPicante = 'medio';
+    let toleranciaPicante: 'bajo' | 'medio' | 'alto' = 'medio';
     if (spicyLevel <= 2) toleranciaPicante = 'bajo';
     else if (spicyLevel >= 4) toleranciaPicante = 'alto';
+
+    // Lenguaje actual de i18n → perfil.idioma.
+    // Solo aceptamos los ISO que nuestro tipo soporta; cae a 'es' si es otro.
+    const idiomasSoportados = ['es', 'en', 'fr', 'de', 'pt', 'it', 'ja', 'ar', 'zh'] as const;
+    const lngActual = (i18n.language ?? 'es').split('-')[0] ?? 'es';
+    const idioma = (idiomasSoportados as readonly string[]).includes(lngActual)
+      ? (lngActual as typeof idiomasSoportados[number])
+      : 'es';
 
     await actualizar({
       alergias: allergies,
       dieta: {
         vegetariano: isVegetarian,
         vegano: isVegan,
-        pescetariano: false
+        pescetariano: false,
+        keto: isKeto,
       },
-      restricciones: {
-        sinGluten,
-        sinLacteos
-      },
-      evitaCerdo: evitaCarne,
+      restricciones: { sinGluten, sinLacteos },
+      evitaCerdo,
       evitaMariscos,
-      toleranciaPicante: toleranciaPicante as "bajo" | "medio" | "alto",
+      evitaAlcohol,
+      toleranciaPicante,
+      estomagoSensible,
+      estadoActual: estadoActual.trim(),
+      idioma,
       ingredientesEvitar: [...avoid, ...cultural],
     });
 
@@ -411,6 +443,101 @@ export default function QuestionnaireScreen() {
               theme={theme}
               isDark={isDark}
             />
+          </View>
+        );
+      case 6:
+        return (
+          <View style={styles.stepContainer}>
+            <Text style={[styles.question, { color: theme.text }]}>
+              {t('questionnaire.location', '¿En qué estado te encuentras?')}
+            </Text>
+            <Text style={[styles.description, { color: theme.icon }]}>
+              {t(
+                'questionnaire.location_hint',
+                'Usamos tu ubicación para sugerirte platillos típicos de la región.',
+              )}
+            </Text>
+            <View style={styles.selectedTagsContainer}>
+              {estadoActual !== '' && (
+                <TouchableOpacity
+                  onPress={() => setEstadoActual('')}
+                  style={[styles.tag, { backgroundColor: MayanColors.jade }]}
+                >
+                  <Text style={styles.tagText}>{estadoActual}</Text>
+                  <Ionicons
+                    name="close-circle"
+                    size={16}
+                    color="#fff"
+                    style={{ marginLeft: 4 }}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: isDark ? '#444' : '#e0e0e0',
+                  color: theme.text,
+                  backgroundColor: isDark ? '#2a2a2a' : '#fff',
+                  marginBottom: 12,
+                },
+              ]}
+              value={estadoActual}
+              onChangeText={setEstadoActual}
+              placeholder={t(
+                'questionnaire.location_placeholder',
+                'Escribe el nombre del estado',
+              )}
+              placeholderTextColor={theme.icon}
+            />
+            <View style={styles.suggestionsList}>
+              {estadosTuristicos.map((est) => (
+                <TouchableOpacity
+                  key={est}
+                  onPress={() => setEstadoActual(est)}
+                  style={[styles.suggestionTag, { borderColor: theme.icon }]}
+                >
+                  <Text style={[styles.suggestionText, { color: theme.text }]}>
+                    {est}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        );
+      case 7:
+        return (
+          <View style={styles.stepContainer}>
+            <Text style={[styles.question, { color: theme.text }]}>
+              {t('questionnaire.stomach', '¿Tu estómago es sensible?')}
+            </Text>
+            <Text style={[styles.description, { color: theme.icon }]}>
+              {t(
+                'questionnaire.stomach_hint',
+                'Si te cae mal la comida picante o pesada, marca sí. Vamos a priorizar platillos más ligeros.',
+              )}
+            </Text>
+            <View style={styles.chipGrid}>
+              <Chip
+                label={t('questionnaire.stomach_yes', 'Sí, sensible')}
+                icon="🌿"
+                selected={estomagoSensible}
+                onPress={() => setEstomagoSensible(true)}
+                theme={theme}
+                isDark={isDark}
+                large
+              />
+              <Chip
+                label={t('questionnaire.stomach_no', 'Aguanto todo')}
+                icon="🔥"
+                selected={!estomagoSensible}
+                onPress={() => setEstomagoSensible(false)}
+                theme={theme}
+                isDark={isDark}
+                large
+              />
+            </View>
           </View>
         );
       default:
