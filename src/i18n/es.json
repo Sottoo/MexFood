@@ -57,5 +57,48 @@
             "spicy_high": "alto",
             "sensitive": "Estómago sensible..."
         }
+    },
+    "questionnaire": {
+        "title": "Perfil Inicial",
+        "subtitle": "Cuéntanos sobre tus preferencias para darte las mejores recomendaciones.",
+        "allergies": "¿Tienes alguna alergia?",
+        "allergies_placeholder": "Ej: Nuez, Soya...",
+        "diet": "¿Sigues alguna dieta?",
+        "diet_options": {
+            "none": "Ninguna",
+            "vegan": "Vegana",
+            "vegetarian": "Vegetariana",
+            "keto": "Keto"
+        },
+        "ingredients": "¿Consumes lácteos, carne, gluten o mariscos?",
+        "ingredients_options": {
+            "dairy": "Lácteos",
+            "meat": "Carne",
+            "gluten": "Gluten",
+            "seafood": "Mariscos"
+        },
+        "spicy": "¿Tu tolerancia al picante es baja, media o alta?",
+        "spicy_options": {
+            "low": "Baja",
+            "medium": "Media",
+            "high": "Alta"
+        },
+        "cultural": "¿Tienes restricciones culturales o religiosas?",
+        "cultural_placeholder": "Ej: Halal, Kosher...",
+        "avoid": "Casi listos. ¿Algún otro alimento a evitar?",
+        "avoid_placeholder": "Ej: Cebolla, Cilantro...",
+        "avoid_hint": "Escribe ingredientes que no soportes y presiona agregar",
+        "submit": "Finalizar",
+        "allergies_hint": "Escribe y presiona + o Enter para agregar",
+        "allergies_common_peanuts": "Cacahuate",
+        "allergies_common_soy": "Soya",
+        "allergies_common_egg": "Huevo",
+        "allergies_common_sesame": "Ajonjolí",
+        "allergies_add_button": "Agregar",
+        "spicy_level_1": "Nada de picante",
+        "spicy_level_2": "Un toque",
+        "spicy_level_3": "Pique Auténtico",
+        "spicy_level_4": "Muy Picante",
+        "spicy_level_5": "Fuego Extremo"
     }
 }

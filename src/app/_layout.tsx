@@ -34,6 +34,13 @@ export default function RootLayout() {
           gestureEnabled: false, // Prevent swiping back on iOS
         }}
       />
+      <Stack.Screen
+        name="questionnaire"
+        options={{
+          headerShown: false, // Hide header for smooth transition from welcome
+          gestureEnabled: false,
+        }}
+      />
     </Stack>
   );
 }

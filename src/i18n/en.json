@@ -57,5 +57,48 @@
             "spicy_high": "high",
             "sensitive": "Sensitive stomach..."
         }
+    },
+    "questionnaire": {
+        "title": "Initial Profile",
+        "subtitle": "Tell us about your preferences to give you the best recommendations.",
+        "allergies": "Do you have any allergies?",
+        "allergies_placeholder": "Ex: Nuts, Soy...",
+        "diet": "Do you follow any diet?",
+        "diet_options": {
+            "none": "None",
+            "vegan": "Vegan",
+            "vegetarian": "Vegetarian",
+            "keto": "Keto"
+        },
+        "ingredients": "Do you consume dairy, meat, gluten, or seafood?",
+        "ingredients_options": {
+            "dairy": "Dairy",
+            "meat": "Meat",
+            "gluten": "Gluten",
+            "seafood": "Seafood"
+        },
+        "spicy": "Is your spicy tolerance low, medium, or high?",
+        "spicy_options": {
+            "low": "Low",
+            "medium": "Medium",
+            "high": "High"
+        },
+        "cultural": "Do you have any cultural or religious restrictions?",
+        "cultural_placeholder": "Ex: Halal, Kosher...",
+        "avoid": "Almost done. Any food to avoid?",
+        "avoid_placeholder": "Ex: Onion, Cilantro...",
+        "avoid_hint": "Type ingredients you dislike and press Add",
+        "submit": "Finish",
+        "allergies_hint": "Type and press + or Enter to add",
+        "allergies_common_peanuts": "Peanut",
+        "allergies_common_soy": "Soy",
+        "allergies_common_egg": "Egg",
+        "allergies_common_sesame": "Sesame",
+        "allergies_add_button": "Add",
+        "spicy_level_1": "No Spice",
+        "spicy_level_2": "A Little Kick",
+        "spicy_level_3": "Authentic Kick",
+        "spicy_level_4": "Very Spicy",
+        "spicy_level_5": "Extreme Fire"
     }
 }

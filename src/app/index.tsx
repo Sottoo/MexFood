@@ -14,8 +14,8 @@ export default function WelcomeScreen() {
   const theme = Colors[isDark ? 'dark' : 'light'];
 
   const handleStart = () => {
-    // Navigate to home screen and prevent going back
-    router.replace('/(tabs)/home');
+    // Navigate to questionnaire screen and prevent going back
+    router.replace('/questionnaire');
   };
 
   return (
