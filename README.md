@@ -25,7 +25,7 @@ MexFood/
     ├── app/                 # EXCLUSIVO PARA RUTAS (Expo Router)
     │   ├── _layout.tsx      # Layout principal (Stack)
     │   ├── index.tsx        # Pantalla de bienvenida (Welcome Screen)
-    │   ├── questionnaire.tsx# Pantalla tipo Wizard para el Perfil Inicial interactivo
+    │   ├── questionnaire.tsx# Pantalla del Cuestionario inicial
     │   └── (tabs)/          # Grupo de pestañas inferiores (Bottom Tabs)
     │       ├── _layout.tsx  # Configuración del menú inferior
     │       ├── home.tsx     # Pantalla "Explorar"
