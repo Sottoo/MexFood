@@ -25,6 +25,7 @@ MexFood/
     ├── app/                 # EXCLUSIVO PARA RUTAS (Expo Router)
     │   ├── _layout.tsx      # Layout principal (Stack)
     │   ├── index.tsx        # Pantalla de bienvenida (Welcome Screen)
+    │   ├── questionnaire.tsx# Pantalla tipo Wizard para el Perfil Inicial interactivo
     │   └── (tabs)/          # Grupo de pestañas inferiores (Bottom Tabs)
     │       ├── _layout.tsx  # Configuración del menú inferior
     │       ├── home.tsx     # Pantalla "Explorar"
@@ -47,6 +48,10 @@ MexFood/
     │   ├── index.ts         # Inicializador y configuración principal
     │   ├── es.json          # Diccionario Español
     │   └── en.json          # Diccionario Inglés
+    │
+    ├── lib/                 # LÓGICA DE NEGOCIO Y CLIENTES BACKEND
+    │   ├── core.ts          # Clientes de Supabase y LLM (Inteligencia Artificial)
+    │   └── hooks.ts         # Custom hooks para estados persistentes (ej. usePerfil)
     │
     └── screens/             # COMPONENTES ESPECÍFICOS POR PANTALLA
         ├── home/
