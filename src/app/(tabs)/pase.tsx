@@ -10,6 +10,7 @@ import {
   Alert,
   Dimensions,
   Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -29,21 +30,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const TICKET_WIDTH = SCREEN_WIDTH - 32;
-const TICKET_HEIGHT = 220; // Horizontal Ticket
+const TICKET_HEIGHT = 260;
 
-// ─────────── 3D Reanimated Ticket Component ───────────
 function Ticket3D({ perfil, theme, isDark, t }: any) {
-  // Ultra-smooth gyroscope reading
+
   const rotation = useAnimatedSensor(SensorType.ROTATION, { interval: 20 });
 
   const animatedTicketStyle = useAnimatedStyle(() => {
-    // rotation.sensor.value is a quaternion or euler angles depending on the platform/type
-    // For SensorType.ROTATION, pitch is usually [1] and roll is [2]
+
+
     const pitch = rotation.sensor.value.pitch;
     const roll = rotation.sensor.value.roll;
 
-    // Limit rotation so it doesn't flip completely
-    const rotateX = interpolate(pitch, [-Math.PI/2, Math.PI/2], [30, -30], Extrapolation.CLAMP);
+    const rotateX = interpolate(pitch, [-Math.PI / 2, Math.PI / 2], [30, -30], Extrapolation.CLAMP);
     const rotateY = interpolate(roll, [-Math.PI, Math.PI], [-40, 40], Extrapolation.CLAMP);
 
     return {
@@ -57,9 +56,9 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
 
   const animatedSheenStyle = useAnimatedStyle(() => {
     const roll = rotation.sensor.value.roll;
-    // Move the shiny reflection based on tilt
-    const translateX = interpolate(roll, [-Math.PI/4, Math.PI/4], [-TICKET_WIDTH, TICKET_WIDTH], Extrapolation.CLAMP);
-    
+
+    const translateX = interpolate(roll, [-Math.PI / 4, Math.PI / 4], [-TICKET_WIDTH, TICKET_WIDTH], Extrapolation.CLAMP);
+
     return {
       transform: [
         { translateX: withSpring(translateX, { damping: 30, stiffness: 120 }) },
@@ -68,139 +67,150 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
     };
   });
 
-  // Extract Profile Data
   let dietLabel = t('pass.diet_labels.standard', 'ESTÁNDAR');
   if (perfil?.dieta?.vegano) dietLabel = t('pass.diet_labels.vegan', 'VEGANO');
   else if (perfil?.dieta?.vegetariano) dietLabel = t('pass.diet_labels.vegetarian', 'VEGETARIANO');
   else if (perfil?.dieta?.keto) dietLabel = t('pass.diet_labels.keto', 'KETO');
 
-  const spiceKey = perfil?.toleranciaPicante || 'medium';
-  const spiceLevel = t(`pass.spice_labels.${spiceKey}`, spiceKey.toUpperCase());
-  
+  const spiceKey = perfil?.toleranciaPicante || 'medio';
+  const spiceLabelMap: Record<string, string> = { bajo: 'BAJO', medio: 'MEDIO', alto: 'ALTO' };
+  const spiceLevel = spiceLabelMap[spiceKey] || spiceKey.toUpperCase();
+  const isSpiceHot = spiceKey === 'alto';
+
+  const pais = perfil?.paisOrigen?.toLowerCase() || 'mx';
+  const flagUrl = pais !== 'other' ? `https://flagcdn.com/w80/${pais}.png` : null;
+
+  const restrictions: string[] = [];
+  if (perfil?.restricciones?.sinGluten) restrictions.push('SIN GLUTEN');
+  if (perfil?.restricciones?.sinLacteos) restrictions.push('SIN LÁCTEOS');
+  if (perfil?.evitaCerdo) restrictions.push('SIN CERDO');
+  if (perfil?.evitaMariscos) restrictions.push('SIN MARISCOS');
+  if (perfil?.evitaAlcohol) restrictions.push('SIN ALCOHOL');
+  if (perfil?.estomagoSensible) restrictions.push('SENSITIVO');
+
   const avoidItems = [
     ...(perfil?.alergias || []),
     ...(perfil?.ingredientesEvitar || []),
   ];
 
-  const restrictions: string[] = [];
-  if (perfil?.restricciones?.sinGluten) restrictions.push(t('pass.restrictions_labels.no_gluten', 'NO GLUTEN'));
-  if (perfil?.restricciones?.sinLacteos) restrictions.push(t('pass.restrictions_labels.no_dairy', 'NO LÁCTEOS'));
-  if (perfil?.evitaCerdo) restrictions.push(t('pass.restrictions_labels.no_pork', 'NO CERDO'));
-  if (perfil?.evitaMariscos) restrictions.push(t('pass.restrictions_labels.no_mariscos', 'NO MARISCOS'));
-  if (perfil?.evitaAlcohol) restrictions.push(t('pass.restrictions_labels.no_alcohol', 'NO ALCOHOL'));
-  if (perfil?.estomagoSensible) restrictions.push(t('pass.restrictions_labels.sensitive', 'SENSITIVO'));
-
   return (
     <View style={styles.ticketWrapper}>
-      {/* The Actual Ticket with native shadow */}
       <Animated.View style={[styles.ticketContainer, animatedTicketStyle]}>
-        
-        {/* Ticket Base Background */}
+
         <View style={[styles.ticketBackground, { backgroundColor: isDark ? '#1C221F' : '#FAFAFA' }]}>
           <LinearGradient
             colors={isDark ? ['#1A2420', '#151A18'] : ['#FFFFFF', '#F0F5F2']}
             style={StyleSheet.absoluteFillObject}
           />
 
-          {/* Left Side: Main Info */}
           <View style={styles.ticketMain}>
-            
-            {/* Header: Logo and Title */}
+
             <View style={styles.ticketHeader}>
               <View style={styles.logoBox}>
                 <Ionicons name="fast-food" size={20} color="#fff" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.titleTop, { color: isDark ? '#8C968F' : '#9E9E9E' }]} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.title_top', 'MEXFOOD 2026')}</Text>
+                <Text style={[styles.titleTop, { color: isDark ? '#8C968F' : '#9E9E9E' }]} numberOfLines={1} adjustsFontSizeToFit>MEXFOOD · FIFA 2026</Text>
                 <Text style={[styles.titleMain, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.title_main', 'PASE DE AFICIONADO')}</Text>
               </View>
+              {flagUrl ? (
+                <Image source={{ uri: flagUrl }} style={styles.ticketFlag} />
+              ) : (
+                <Text style={{ fontSize: 22 }}>🌍</Text>
+              )}
             </View>
 
-            {/* Content Grid */}
             <View style={styles.ticketDataGrid}>
-              
               <View style={styles.dataCol}>
-                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.diet', 'DIETA')}</Text>
+                <Text style={styles.dataLabel} numberOfLines={1}>{t('pass.ticket.diet', 'DIETA')}</Text>
                 <Text style={[styles.dataValue, { color: MayanColors.jade }]} numberOfLines={1} adjustsFontSizeToFit>{dietLabel}</Text>
               </View>
-
               <View style={styles.dataCol}>
-                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.spice', 'PICANTE')}</Text>
+                <Text style={styles.dataLabel} numberOfLines={1}>{t('pass.ticket.spice', 'PICANTE')}</Text>
                 <View style={styles.spiceRow}>
-                  <Text style={[styles.dataValue, { color: spiceKey === 'high' ? MayanColors.terracotta : MayanColors.mayanBlue }]} numberOfLines={1} adjustsFontSizeToFit>
+                  <Text style={[styles.dataValue, { color: isSpiceHot ? MayanColors.terracotta : MayanColors.mayanBlue }]} numberOfLines={1} adjustsFontSizeToFit>
                     {spiceLevel}
                   </Text>
-                  <Ionicons name="flame" size={14} color={spiceKey === 'high' ? MayanColors.terracotta : MayanColors.mayanBlue} />
+                  <Ionicons name="flame" size={14} color={isSpiceHot ? MayanColors.terracotta : MayanColors.mayanBlue} />
                 </View>
               </View>
-
+              <View style={styles.dataCol}>
+                <Text style={styles.dataLabel} numberOfLines={1}>{t('pass.ticket.language', 'IDIOMA')}</Text>
+                <Text style={[styles.dataValue, { color: MayanColors.gold }]} numberOfLines={1} adjustsFontSizeToFit>
+                  {perfil?.idioma === 'en' ? 'ENG' : 'ESP'}
+                </Text>
+              </View>
             </View>
 
-            {/* Restrictions Tags */}
             <View style={styles.tagsArea}>
-              <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.restrictions', 'RESTRICCIONES PRINCIPALES')}</Text>
+              <Text style={styles.dataLabel}>{t('pass.ticket.restrictions', 'RESTRICCIONES')}</Text>
               <View style={styles.tagsRow}>
                 {restrictions.length > 0 ? (
                   restrictions.slice(0, 4).map((r, i) => (
                     <View key={i} style={[styles.microTag, { backgroundColor: isDark ? '#2D3631' : '#E8F0EC' }]}>
-                      <Text style={[styles.microTagText, { color: isDark ? '#B4C2BB' : '#5C6E64' }]} numberOfLines={1} adjustsFontSizeToFit>{r}</Text>
+                      <Text style={[styles.microTagText, { color: isDark ? '#B4C2BB' : '#5C6E64' }]} numberOfLines={1}>{r}</Text>
                     </View>
                   ))
                 ) : (
-                  <Text style={[styles.dataValueSmall, { color: isDark ? '#666' : '#999' }]} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.none_reported', 'Ninguna reportada')}</Text>
+                  <Text style={[styles.dataValueSmall, { color: isDark ? '#666' : '#999' }]}>Ninguna</Text>
                 )}
               </View>
             </View>
 
-            {/* Allergies */}
             <View style={styles.allergiesArea}>
               <Text style={styles.dataLabel}>{t('pass.ticket.allergies', 'ALERGIAS / EVITAR')}</Text>
-              <Text 
+              <Text
                 style={[styles.allergiesText, { color: avoidItems.length > 0 ? MayanColors.terracotta : (isDark ? '#666' : '#999') }]}
                 numberOfLines={1}
               >
-                {avoidItems.length > 0 ? avoidItems.join(' • ').toUpperCase() : t('pass.ticket.none', 'NINGUNA')}
+                {avoidItems.length > 0 ? avoidItems.join(' · ').toUpperCase() : 'NINGUNA'}
               </Text>
             </View>
-
           </View>
 
-          {/* Perforation Line (Dashed) */}
           <View style={styles.perforationLine}>
             <View style={[styles.notchTop, { backgroundColor: theme.background }]} />
             <View style={styles.dashedLine}>
-              {Array.from({ length: 14 }).map((_, i) => (
+              {Array.from({ length: 16 }).map((_, i) => (
                 <View key={i} style={[styles.dash, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]} />
               ))}
             </View>
             <View style={[styles.notchBottom, { backgroundColor: theme.background }]} />
           </View>
 
-            {/* Right Side: Stub */}
           <View style={styles.ticketStub}>
             <View style={styles.stubContent}>
-              
+
               <View style={styles.stubItem}>
-                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.venue', 'SEDE')}</Text>
-                <Text style={[styles.stubValue, { color: isDark ? '#FFF' : '#1A1A1A' }]} numberOfLines={2} adjustsFontSizeToFit>
-                  {perfil?.estadoActual ? perfil.estadoActual.toUpperCase() : 'MX-26'}
-                </Text>
-              </View>
-              
-              <View style={styles.stubItem}>
-                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.language', 'IDIOMA')}</Text>
-                <Text style={[styles.stubValue, { color: isDark ? '#FFF' : '#1A1A1A' }]} numberOfLines={1} adjustsFontSizeToFit>
-                  {perfil?.idioma === 'en' ? 'ENG' : 'ESP'}
-                </Text>
+                <Text style={styles.dataLabel} numberOfLines={1}>ORIGEN</Text>
+                <View style={styles.stubOriginRow}>
+                  {flagUrl ? (
+                    <Image source={{ uri: flagUrl }} style={styles.stubFlagMini} />
+                  ) : (
+                    <Text style={{ fontSize: 14 }}>🌍</Text>
+                  )}
+                  <Text style={[styles.stubValue, { color: isDark ? '#FFF' : '#1A1A1A' }]} numberOfLines={1}>
+                    {pais.toUpperCase()}
+                  </Text>
+                </View>
               </View>
 
-              <View style={styles.qrCodePlaceholder}>
-                <Ionicons name="qr-code" size={32} color={isDark ? '#4A5C52' : '#B8C9BF'} />
+              <View style={styles.stubItem}>
+                <Text style={styles.dataLabel} numberOfLines={1}>{t('pass.ticket.venue', 'SEDE')}</Text>
+                <View style={styles.stubVenueRow}>
+                  <Ionicons name="location" size={14} color={MayanColors.jade} style={{ marginRight: 4 }} />
+                  <Text style={[styles.stubValue, { color: isDark ? '#FFF' : '#1A1A1A', flex: 1 }]} numberOfLines={2} adjustsFontSizeToFit>
+                    {perfil?.estadoActual ? perfil.estadoActual.toUpperCase() : 'MX-26'}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.qrCodeBox, { borderColor: isDark ? '#333' : '#E0E0E0' }]}>
+                <Ionicons name="qr-code" size={34} color={isDark ? '#4A5C52' : '#B8C9BF'} />
               </View>
             </View>
           </View>
 
-          {/* Holographic Sheen overlay */}
           <Animated.View style={[styles.sheen, animatedSheenStyle]}>
             <LinearGradient
               colors={['rgba(255,255,255,0)', isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.4)', 'rgba(255,255,255,0)']}
@@ -216,7 +226,6 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
   );
 }
 
-// ─────────── Settings Section Item ───────────
 function SettingsItem({
   icon,
   label,
@@ -241,8 +250,8 @@ function SettingsItem({
             backgroundColor: danger
               ? isDark ? '#3A1E1E' : '#FFE5E5'
               : isDark
-              ? '#2A2D2C'
-              : '#F5F5F5',
+                ? '#2A2D2C'
+                : '#F5F5F5',
           },
         ]}
       >
@@ -276,7 +285,6 @@ function SettingsItem({
   );
 }
 
-// ─────────── Main Screen ───────────
 export default function PaseScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -306,7 +314,7 @@ export default function PaseScreen() {
 
   const handleDietChange = useCallback(() => {
     if (!perfil) return;
-    
+
     const options = [
       { id: 'standard', label: t('pass.diet_labels.standard', 'ESTÁNDAR') },
       { id: 'vegan', label: t('pass.diet_labels.vegan', 'VEGANO') },
@@ -335,7 +343,7 @@ export default function PaseScreen() {
 
   const handleCountryChange = useCallback(() => {
     if (!perfil) return;
-    
+
     const countries = [
       { id: 'mx', label: 'México', icon: '🇲🇽' },
       { id: 'us', label: 'USA', icon: '🇺🇸' },
@@ -381,8 +389,7 @@ export default function PaseScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]} edges={['top']}>
-      
-      {/* Header */}
+
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: theme.text }]}>
           {t('pass.title', 'Mi Pase')}
@@ -397,13 +404,11 @@ export default function PaseScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        
-        {/* 3D Ticket */}
+
         <View style={styles.gyroContainer}>
           <Ticket3D perfil={perfil} theme={theme} isDark={isDark} t={t} />
         </View>
 
-        {/* Settings */}
         <View style={styles.settingsContainer}>
           <Text style={[styles.settingsSectionTitle, { color: theme.icon }]}>{t('pass.section_preferences', 'MIS PREFERENCIAS')}</Text>
           <View style={[styles.settingsSectionCard, { backgroundColor: isDark ? '#222524' : '#fff', borderColor: isDark ? '#2A2D2C' : '#f0f0f0', marginBottom: 24 }]}>
@@ -412,9 +417,9 @@ export default function PaseScreen() {
               label={t('pass.diet', 'Dieta')}
               subtitle={
                 perfil?.dieta?.vegano ? t('pass.diet_labels.vegan', 'VEGANO') :
-                perfil?.dieta?.vegetariano ? t('pass.diet_labels.vegetarian', 'VEGETARIANO') :
-                perfil?.dieta?.keto ? t('pass.diet_labels.keto', 'KETO') :
-                t('pass.diet_labels.standard', 'ESTÁNDAR')
+                  perfil?.dieta?.vegetariano ? t('pass.diet_labels.vegetarian', 'VEGETARIANO') :
+                    perfil?.dieta?.keto ? t('pass.diet_labels.keto', 'KETO') :
+                      t('pass.diet_labels.standard', 'ESTÁNDAR')
               }
               onPress={handleDietChange}
               theme={theme}
@@ -440,7 +445,7 @@ export default function PaseScreen() {
 
           <Text style={[styles.settingsSectionTitle, { color: theme.icon }]}>{t('pass.section_config', 'CONFIGURACIÓN')}</Text>
           <View style={[styles.settingsSectionCard, { backgroundColor: isDark ? '#222524' : '#fff', borderColor: isDark ? '#2A2D2C' : '#f0f0f0' }]}>
-            
+
             <SettingsItem
               icon="language-outline"
               label={t('pass.language', 'Idioma')}
@@ -449,7 +454,7 @@ export default function PaseScreen() {
               theme={theme}
               isDark={isDark}
             />
-            
+
             <SettingsItem
               icon="notifications-outline"
               label={t('pass.notifications', 'Notificaciones')}
@@ -494,7 +499,6 @@ export default function PaseScreen() {
   );
 }
 
-// ─────────── Styles ───────────
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
@@ -506,7 +510,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
 
-  // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -531,7 +534,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // 3D Ticket Container
   gyroContainer: {
     alignItems: 'center',
     paddingVertical: 20,
@@ -544,7 +546,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 
-  // Ticket Physics
   ticketWrapper: {
     width: TICKET_WIDTH,
     height: TICKET_HEIGHT,
@@ -561,7 +562,6 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
 
-  // Ticket UI
   ticketBackground: {
     flex: 1,
     flexDirection: 'row',
@@ -580,7 +580,6 @@ const styles = StyleSheet.create({
     pointerEvents: 'none',
   },
 
-  // Ticket Sections
   ticketMain: {
     flex: 3,
     padding: 18,
@@ -600,13 +599,12 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
   },
 
-  // Perforation Details
   notchTop: {
     width: 24,
     height: 12,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
-    marginTop: -1, // cover border
+    marginTop: -1,
     borderBottomWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
@@ -635,7 +633,6 @@ const styles = StyleSheet.create({
     borderRadius: 1,
   },
 
-  // Ticket Content Main
   ticketHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -650,6 +647,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  ticketFlag: {
+    width: 30,
+    height: 22,
+    borderRadius: 3,
+    borderWidth: 0.5,
+    borderColor: 'rgba(0,0,0,0.1)',
+  },
   titleTop: {
     fontSize: 9,
     fontWeight: '800',
@@ -662,7 +666,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  // Data Grid
   ticketDataGrid: {
     flexDirection: 'row',
     gap: 20,
@@ -693,7 +696,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
 
-  // Tags
   tagsArea: {
     marginBottom: 10,
   },
@@ -713,7 +715,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  // Allergies
   allergiesArea: {
   },
   allergiesText: {
@@ -722,26 +723,46 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  // Ticket Stub
   stubContent: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingTop: 10,
+    paddingTop: 14,
+    paddingBottom: 10,
   },
-  stubItem: {},
+  stubItem: {
+    marginBottom: 6,
+  },
+  stubOriginRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 3,
+  },
+  stubFlagMini: {
+    width: 20,
+    height: 14,
+    borderRadius: 2,
+    borderWidth: 0.5,
+    borderColor: 'rgba(0,0,0,0.1)',
+  },
+  stubVenueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 3,
+  },
   stubValue: {
     fontSize: 13,
     fontWeight: '800',
     letterSpacing: 1,
-    marginTop: 2,
   },
-  qrCodePlaceholder: {
-    alignSelf: 'flex-start',
+  qrCodeBox: {
+    alignSelf: 'center',
     marginTop: 'auto',
-    marginBottom: 4,
+    padding: 6,
+    borderRadius: 8,
+    borderWidth: 1,
   },
 
-  // Settings
   settingsContainer: {
     paddingHorizontal: 20,
     marginTop: 10,
@@ -785,7 +806,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // Footer
   footer: {
     alignItems: 'center',
     paddingVertical: 30,
