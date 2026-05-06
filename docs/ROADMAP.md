@@ -57,7 +57,7 @@ lista de platillos recomendados para el perfil del usuario, con
 semáforo visible. Puede seguir conviviendo con el grid de
 "servicios oficiales" si el PM lo quiere — abajo de él.
 
-**Uso:**
+**Uso (sin GPS):**
 ```tsx
 const { perfil } = usePerfil();
 const { catalogo } = useCatalogo();
@@ -71,6 +71,32 @@ const { recomendados, evitar } = useRecomendaciones(perfil, catalogo, {
   ListFooterComponent={<SeccionEvitar items={evitar} />}
 />
 ```
+
+**Uso recomendado (con GPS para experiencia local):**
+```tsx
+const { perfil } = usePerfil();
+const { catalogo } = useCatalogo();
+const { ubicacion } = useUbicacion();   // detecta estado por GPS
+
+// Sección "Para ti": modo suave — el estado del usuario sube en score
+// pero no filtra. Siempre hay opciones.
+const { recomendados } = useRecomendaciones(perfil, catalogo, {
+  topN: 20,
+  ubicacion,
+});
+
+// Sección "Típico de tu estado": modo estricto — solo platillos con
+// estadoTipico matcheado. Puede quedar vacío en estados con poca
+// cobertura del catálogo; mostrar fallback.
+const { recomendados: tipicos } = useRecomendaciones(perfil, catalogo, {
+  topN: 10,
+  ubicacion,
+  soloRegional: true,
+});
+```
+
+Ver [BACKEND.md §4.1](./BACKEND.md#41-filtrar-por-ubicación-gps) para los
+detalles de filtrado por ubicación.
 
 **Por platillo mostrar:**
 - Nombre de la variante
@@ -174,6 +200,41 @@ demos reproducibles, foto-tea una vez antes y la segunda vez es <1s.
 
 **Esfuerzo:** medio (3-5h). El cache y el matching ya están hechos, el
 trabajo es la UX de cámara y lista de resultados.
+
+---
+
+### 1.5 Filtrado por ubicación / GPS — ✅ HECHO (plomería)
+
+Hooks listos para usar:
+- `useUbicacion()`: pide permiso y detecta el estado del usuario vía
+  `expo-location` + reverse geocoding. Devuelve
+  `{ ubicacion, cargando, error, refrescar }`.
+- `useRecomendaciones(perfil, catalogo, { ubicacion, soloRegional })`:
+  acepta dos opciones nuevas. Sin ellas, comportamiento original.
+
+Ver [BACKEND.md §4.1](./BACKEND.md#41-filtrar-por-ubicación-gps) y
+[§4.2](./BACKEND.md#42-detección-de-ubicación-con-gps) para ejemplos.
+
+**Lo que falta del lado del front:**
+- Conectar `useUbicacion` en home (o donde se quiera la experiencia
+  local). Ahora mismo solo el debug panel demuestra el flujo.
+- UX para cuando `error !== null` (permiso denegado, fuera de México,
+  GPS apagado): sugerencia es no mostrar mensaje agresivo, solo caer
+  silenciosamente al `perfil.estadoActual` del onboarding (es el
+  comportamiento por defecto si pasas `ubicacion: null`).
+- UX para cuando `soloRegional: true` deja la lista vacía: mensaje
+  "aún no tenemos platillos típicos de tu estado, mira las opciones
+  generales" + caer al modo suave automáticamente.
+- (Opcional) cachear el último estado detectado en AsyncStorage para
+  no re-pedir GPS cada arranque. `useUbicacion` actualmente lo pide
+  cada mount.
+- (Opcional) mapeo manual de abreviaciones para soportar "CDMX" →
+  "Ciudad de México" (el geocoder devuelve nombres completos pero
+  algunos usuarios podrían escribirlos cortos en el onboarding).
+
+**Permisos para builds nativos** (cuando dejen Expo Go):
+ver [BACKEND.md §4.2](./BACKEND.md#42-detección-de-ubicación-con-gps)
+para el snippet exacto de `app.json`.
 
 ---
 

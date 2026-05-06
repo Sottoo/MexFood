@@ -92,6 +92,7 @@ runtime necesarias.
 | `@react-native-async-storage/async-storage` | Implementación del `StorageAdapter` que `@core/data` espera para el cache del catálogo. Cumple la interfaz tal cual, sin wrapper. |
 | `expo-crypto` | SHA-256 del base64 de la imagen para la key del cache de menús (el `@core/data` necesita recibirla ya calculada; no usa `node:crypto`) |
 | `expo-image-picker` | Cámara / galería para el scanner de menú. Devuelve base64 directo |
+| `expo-location` | GPS + reverse geocoding para detectar el estado del usuario (ver §useUbicacion) |
 | `react-native-url-polyfill` | Requerido por `@supabase/supabase-js` en RN (no tiene `URL` nativo en versiones viejas; importarlo en `_layout.tsx` para que cargue antes que Supabase) |
 
 ---
@@ -216,6 +217,9 @@ Principio de diseño de los hooks:
    skeleton prolongado.
 3. **Memoización basada en id, no en referencia.** Se evita re-pedir
    al LLM solo porque React re-mountó el componente.
+4. **Permisos y APIs nativas se piden lazy.** `useUbicacion()` solo
+   dispara el prompt de GPS cuando se monta. Si una pantalla no usa
+   ubicación, el usuario nunca ve el prompt.
 
 ---
 
@@ -232,9 +236,15 @@ Diagrama mental del flujo desde que el usuario abre la app:
        └→ 220 platillos + 190 variantes en memoria
 
 2. Usuario en home
-   └→ useRecomendaciones(perfil, catalogo) → memoiza localmente
-       └→ recomendarPlatillos(perfil, catalogo) (puro, sin red)
+   └→ useUbicacion() (opcional, si la pantalla la usa)
+       └→ requestForegroundPermissionsAsync (prompt iOS/Android)
+       └→ getCurrentPositionAsync (Lowest accuracy ≈ 3km)
+       └→ reverseGeocodeAsync → toma .region (= estado en MX)
+   └→ useRecomendaciones(perfil, catalogo, { ubicacion, soloRegional })
+       └→ override perfil.estadoActual con `ubicacion` si viene
+       └→ recomendarPlatillos(perfilEfectivo, catalogo) (puro, sin red)
            └→ calcularMatchScore por cada variante (hard filters + scoring)
+       └→ si soloRegional, filtra el resultado a estadoTipico ≈ ubicacion
    └→ Lista de cards con color semáforo
 
 3. Usuario toca un platillo
@@ -292,6 +302,8 @@ No hay que tocarla desde el front — solo llamarla vía `crearLlmClient`.
 | Frases en español cuando user tiene `idioma: "en"` | `perfil.idioma` no se está actualizando cuando cambia i18n. Ver ROADMAP §2.1. |
 | Explicación se ve genérica / plantilla siempre | Edge function caída o timeout. Verifica consola de Supabase en el dashboard. Fallback transparente → `explicacion.fuente === "plantilla"`. |
 | Scanner timeout | Imagen muy grande (>2MB base64). Bajar `quality` del ImagePicker a 0.5. |
+| `useUbicacion` siempre devuelve `null` | Permiso denegado (revisa `error`), o estás en Expo Web sin política HTTPS. En Expo Go iOS/Android funciona out-of-the-box; en builds nativos requiere config en `app.json` (ver BACKEND.md §4.2). |
+| `ubicacion` viene como un estado raro ("Estado de México" vs "México") | El reverse geocoder de iOS y Android devuelven nombres ligeramente distintos. Nuestro comparador usa `includes` normalizado en ambas direcciones, así que cubre la mayoría. Si encuentras un caso que no matchea, agrega un mapeo manual antes de pasarlo a `useRecomendaciones`. |
 
 ---
 
