@@ -22,6 +22,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   analizarMenu as analizarMenuCore,
   generarExplicacion,
@@ -43,11 +44,25 @@ import type {
 } from "@core/types";
 import {
   hashBase64,
+  idiomaDelSistema,
+  normalizarIdioma,
   obtenerClientes,
   perfilPorDefecto,
   storageCatalogo,
   type Perfil,
 } from "./core";
+
+// Lee el idioma activo de i18n y lo normaliza al subset de IdiomaISO.
+// Preferimos `resolvedLanguage` (lo que i18n efectivamente está usando
+// tras el fallback) sobre `language` (lo solicitado, que puede traer
+// región como "en-US"). Si nada está disponible, cae al sistema.
+function useIdiomaActivo(): Perfil["idioma"] {
+  const { i18n } = useTranslation();
+  return normalizarIdioma(
+    i18n.resolvedLanguage ?? i18n.language,
+    idiomaDelSistema(),
+  );
+}
 
 // Normaliza para comparar estados sin importar acentos / mayúsculas.
 function normalizarEstado(s: string): string {
@@ -254,21 +269,43 @@ export interface EstadoUbicacion {
   refrescar: () => Promise<void>;
 }
 
-export function useUbicacion(): EstadoUbicacion {
-  const [ubicacion, setUbicacion] = useState<string | null>(null);
-  const [ciudad, setCiudad] = useState<string | null>(null);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// Snapshot compartido entre todas las instancias de `useUbicacion`.
+// Antes cada componente disparaba su propio request de permiso + GPS +
+// reverse-geocode; con Home + Header montados a la vez eso eran dos
+// llamadas paralelas al mismo dato. Ahora la primera instancia lanza
+// la detección, las siguientes leen del snapshot y `refrescar` se
+// deduplica vía `detectandoPromise` (si ya hay una en vuelo, joinea).
+type SnapshotUbicacion = Omit<EstadoUbicacion, "refrescar">;
 
-  const detectar = useCallback(async () => {
-    setCargando(true);
-    setError(null);
+let globalUbicacion: SnapshotUbicacion = {
+  ubicacion: null,
+  ciudad: null,
+  cargando: true,
+  error: null,
+};
+let detectandoPromise: Promise<void> | null = null;
+let yaDetectado = false;
+const ubicacionListeners = new Set<(s: SnapshotUbicacion) => void>();
+
+function emitirUbicacion(parcial: Partial<SnapshotUbicacion>) {
+  globalUbicacion = { ...globalUbicacion, ...parcial };
+  ubicacionListeners.forEach((l) => l(globalUbicacion));
+}
+
+function detectarUbicacionShared(): Promise<void> {
+  if (detectandoPromise) return detectandoPromise;
+
+  detectandoPromise = (async () => {
+    emitirUbicacion({ cargando: true, error: null });
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setUbicacion(null);
-        setCiudad(null);
-        setError("Permiso de ubicación denegado");
+        emitirUbicacion({
+          ubicacion: null,
+          ciudad: null,
+          error: "Permiso de ubicación denegado",
+          cargando: false,
+        });
         return;
       }
 
@@ -284,108 +321,183 @@ export function useUbicacion(): EstadoUbicacion {
       const res = resultados[0];
       const region = res?.region?.trim() ?? null;
       const city = res?.city?.trim() || res?.subregion?.trim() || null;
-      
-      setUbicacion(region && region !== "" ? region : null);
-      setCiudad(city && city !== "" ? city : null);
+
+      emitirUbicacion({
+        ubicacion: region && region !== "" ? region : null,
+        ciudad: city && city !== "" ? city : null,
+        error: null,
+        cargando: false,
+      });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setUbicacion(null);
-      setCiudad(null);
-      setError(msg);
+      emitirUbicacion({
+        ubicacion: null,
+        ciudad: null,
+        error: msg,
+        cargando: false,
+      });
     } finally {
-      setCargando(false);
+      yaDetectado = true;
+      detectandoPromise = null;
     }
-  }, []);
+  })();
 
-  useEffect(() => {
-    void detectar();
-  }, [detectar]);
-
-  return { ubicacion, ciudad, cargando, error, refrescar: detectar };
+  return detectandoPromise;
 }
 
+export function useUbicacion(): EstadoUbicacion {
+  const [snap, setSnap] = useState<SnapshotUbicacion>(globalUbicacion);
+
+  useEffect(() => {
+    // Re-sync por si el snapshot cambió entre el render inicial y el efecto.
+    setSnap(globalUbicacion);
+
+    const listener = (s: SnapshotUbicacion) => setSnap(s);
+    ubicacionListeners.add(listener);
+
+    if (!yaDetectado && !detectandoPromise) {
+      void detectarUbicacionShared();
+    }
+
+    return () => {
+      ubicacionListeners.delete(listener);
+    };
+  }, []);
+
+  const refrescar = useCallback(() => detectarUbicacionShared(), []);
+
+  return {
+    ubicacion: snap.ubicacion,
+    ciudad: snap.ciudad,
+    cargando: snap.cargando,
+    error: snap.error,
+    refrescar,
+  };
+}
+
+// Tope de espera antes de fijar plantilla como fallback. El LLM client
+// tiene timeout de 20s pero en la UX del detalle 8s es lo máximo que
+// queremos hacer esperar al usuario frente a un spinner.
+const MAX_ESPERA_LLM_MS = 8000;
+
 // Explicación del LLM para un match puntual. Cae a plantilla si el LLM
-// falla. `null` en variante/platillo/recomendacion evita la llamada
-// (útil mientras el detalle está cargando).
+// falla o tarda más de MAX_ESPERA_LLM_MS. `null` en variante/platillo/
+// recomendacion evita la llamada (útil mientras el detalle está cargando).
+//
+// Una vez fijada (LLM o plantilla), no vuelve a actualizarse para no
+// reemplazar el texto mientras el usuario lee, EXCEPTO si cambia la
+// variante o el idioma activo — en esos casos sí pedimos uno nuevo.
+//
+// El idioma que se manda al LLM viene de i18n (lo que el usuario VE en
+// pantalla), no de `perfil.idioma` persistido. Esto evita drift cuando
+// el usuario cambió el idioma del sistema o el toggle de Pase después
+// del onboarding.
 export function useExplicacion(
   perfil: Perfil | null,
   recomendacion: Recomendacion | null,
   platillo: Platillo | null,
   variante: Variante | null,
 ) {
+  const idiomaActivo = useIdiomaActivo();
   const [explicacion, setExplicacion] = useState<Explicacion | null>(null);
   const [cargando, setCargando] = useState(false);
-  const ultimaVarianteRef = useRef<string | null>(null);
+  const ultimaClaveRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!perfil || !recomendacion || !platillo || !variante) {
       setExplicacion(null);
+      setCargando(false);
       return;
     }
-    // Evitar re-pedir cuando cambia referencia pero id es el mismo
-    if (ultimaVarianteRef.current === variante.id) return;
-    ultimaVarianteRef.current = variante.id;
+    // Re-pedimos cuando cambia variante O idioma; ignoramos cambios de
+    // referencia que no afecten ninguno de los dos.
+    const clave = `${variante.id}:${idiomaActivo}`;
+    if (ultimaClaveRef.current === clave) return;
+    ultimaClaveRef.current = clave;
 
-    let cancelado = false;
+    let resuelto = false;
     setCargando(true);
-    // Mostramos plantilla al instante para que la UI no quede vacía
-    setExplicacion(plantillaExplicacion(recomendacion, platillo, variante));
+    setExplicacion(null);
+
+    const perfilLlm: Perfil = { ...perfil, idioma: idiomaActivo };
+
+    const fijar = (e: Explicacion) => {
+      if (resuelto) return;
+      resuelto = true;
+      setExplicacion(e);
+      setCargando(false);
+    };
+
+    const timer = setTimeout(() => {
+      fijar(plantillaExplicacion(recomendacion, platillo, variante));
+    }, MAX_ESPERA_LLM_MS);
 
     const { llm } = obtenerClientes();
-    generarExplicacion(llm, perfil, recomendacion, platillo, variante)
-      .then((e) => {
-        if (!cancelado) {
-          setExplicacion(e);
-          setCargando(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelado) setCargando(false);
-      });
+    generarExplicacion(llm, perfilLlm, recomendacion, platillo, variante)
+      .then((e) => fijar(e))
+      .catch(() =>
+        fijar(plantillaExplicacion(recomendacion, platillo, variante)),
+      );
 
     return () => {
-      cancelado = true;
+      resuelto = true;
+      clearTimeout(timer);
     };
-  }, [perfil, recomendacion, platillo, variante]);
+  }, [perfil, recomendacion, platillo, variante, idiomaActivo]);
 
   return { explicacion, cargando };
 }
 
 // Frases para pedir (ES + traducción + pronunciación fonética).
-// El idioma de la traducción sale de perfil.idioma.
+// El idioma de la traducción sale del idioma activo de i18n (no de
+// perfil.idioma) para que siempre coincida con lo que el usuario lee.
+//
+// Mismas garantías que useExplicacion: una sola actualización, fallback
+// a plantilla si el LLM tarda más de MAX_ESPERA_LLM_MS, y re-fetch si
+// cambia el platillo o el idioma.
 export function useFrases(perfil: Perfil | null, platillo: Platillo | null) {
+  const idiomaActivo = useIdiomaActivo();
   const [frases, setFrases] = useState<Frase[]>([]);
   const [cargando, setCargando] = useState(false);
-  const ultimoPlatilloRef = useRef<string | null>(null);
+  const ultimaClaveRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!perfil || !platillo) {
       setFrases([]);
+      setCargando(false);
       return;
     }
-    if (ultimoPlatilloRef.current === platillo.id) return;
-    ultimoPlatilloRef.current = platillo.id;
+    const clave = `${platillo.id}:${idiomaActivo}`;
+    if (ultimaClaveRef.current === clave) return;
+    ultimaClaveRef.current = clave;
 
-    let cancelado = false;
+    let resuelto = false;
     setCargando(true);
-    setFrases(plantillaFrases(platillo, perfil));
+    setFrases([]);
+
+    const perfilLlm: Perfil = { ...perfil, idioma: idiomaActivo };
+
+    const fijar = (f: Frase[]) => {
+      if (resuelto) return;
+      resuelto = true;
+      setFrases(f);
+      setCargando(false);
+    };
+
+    const timer = setTimeout(() => {
+      fijar(plantillaFrases(platillo, perfilLlm));
+    }, MAX_ESPERA_LLM_MS);
 
     const { llm } = obtenerClientes();
-    generarFrasesParaPedir(llm, platillo, perfil)
-      .then((f) => {
-        if (!cancelado) {
-          setFrases(f);
-          setCargando(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelado) setCargando(false);
-      });
+    generarFrasesParaPedir(llm, platillo, perfilLlm)
+      .then((f) => fijar(f))
+      .catch(() => fijar(plantillaFrases(platillo, perfilLlm)));
 
     return () => {
-      cancelado = true;
+      resuelto = true;
+      clearTimeout(timer);
     };
-  }, [perfil, platillo]);
+  }, [perfil, platillo, idiomaActivo]);
 
   return { frases, cargando };
 }
@@ -397,6 +509,7 @@ export function useFrases(perfil: Perfil | null, platillo: Platillo | null) {
 //
 // Devuelve AnalisisMenu con itemsDetectados (texto + color + score + motivo).
 export function useAnalizarMenu() {
+  const idiomaActivo = useIdiomaActivo();
   const [analisis, setAnalisis] = useState<AnalisisMenu>(plantillaAnalisisMenu());
   const [cargando, setCargando] = useState(false);
 
@@ -411,7 +524,8 @@ export function useAnalizarMenu() {
       try {
         const { llm, menuCache } = obtenerClientes();
         const hashImagen = await hashBase64(imagenBase64);
-        const res = await analizarMenuCore(llm, imagenBase64, perfil, catalogo, {
+        const perfilLlm: Perfil = { ...perfil, idioma: idiomaActivo };
+        const res = await analizarMenuCore(llm, imagenBase64, perfilLlm, catalogo, {
           mimeType,
           cache: menuCache,
           hashImagen,
@@ -422,7 +536,7 @@ export function useAnalizarMenu() {
         setCargando(false);
       }
     },
-    [],
+    [idiomaActivo],
   );
 
   return { analizar, analisis, cargando };

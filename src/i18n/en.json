@@ -202,7 +202,9 @@
         "phrases": "Phrases to order",
         "feedback_title": "Was this helpful?",
         "thanks": "Thank you!",
-        "feedback_success": "Your feedback helps us improve."
+        "feedback_success": "Your feedback helps us improve.",
+        "loading_explanation": "Generating personalized explanation...",
+        "loading_phrases": "Preparing phrases to order..."
     },
     "card_badges": {
         "for_you": "FOR YOU",

@@ -188,7 +188,9 @@
         "phrases": "Sätze zum Bestellen",
         "feedback_title": "War das hilfreich?",
         "thanks": "Danke!",
-        "feedback_success": "Dein Feedback hilft uns."
+        "feedback_success": "Dein Feedback hilft uns.",
+        "loading_explanation": "Personalisierte Erklärung wird erstellt...",
+        "loading_phrases": "Bestellsätze werden vorbereitet..."
     },
     "card_badges": {
         "for_you": "FÜR DICH",

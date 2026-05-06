@@ -188,7 +188,9 @@
         "phrases": "Phrases pour commander",
         "feedback_title": "Cela a-t-il été utile ?",
         "thanks": "Merci !",
-        "feedback_success": "Vos commentaires nous aident à nous améliorer."
+        "feedback_success": "Vos commentaires nous aident à nous améliorer.",
+        "loading_explanation": "Génération d'une explication personnalisée...",
+        "loading_phrases": "Préparation des phrases pour commander..."
     },
     "card_badges": {
         "for_you": "POUR VOUS",

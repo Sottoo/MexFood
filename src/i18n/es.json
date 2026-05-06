@@ -202,7 +202,9 @@
         "phrases": "Frases para pedir",
         "feedback_title": "¿Te fue útil esta información?",
         "thanks": "¡Gracias!",
-        "feedback_success": "Tu feedback nos ayuda a mejorar."
+        "feedback_success": "Tu feedback nos ayuda a mejorar.",
+        "loading_explanation": "Generando explicación personalizada...",
+        "loading_phrases": "Preparando frases para pedir..."
     },
     "card_badges": {
         "for_you": "PARA TI",

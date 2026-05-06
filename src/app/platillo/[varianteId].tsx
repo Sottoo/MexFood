@@ -127,7 +127,12 @@ export default function DetallePlatillo() {
             <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('dish_detail.why_for_me')}</Text>
             <View style={[styles.explicacionBox, { backgroundColor: theme.background === '#1a1c1a' ? '#2a2c2a' : '#fff' }]}>
               {cargandoExp && !explicacion ? (
-                <ActivityIndicator color={MayanColors.jade} />
+                <View style={styles.loadingRow}>
+                  <ActivityIndicator color={MayanColors.jade} />
+                  <Text style={[styles.loadingText, { color: theme.icon }]}>
+                    {t('dish_detail.loading_explanation')}
+                  </Text>
+                </View>
               ) : explicacion ? (
                 <>
                   <Text style={[styles.explicacionTexto, { color: theme.text }]}>{explicacion.texto}</Text>
@@ -188,7 +193,12 @@ export default function DetallePlatillo() {
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('dish_detail.phrases')}</Text>
             {cargandoFra && frases.length === 0 ? (
-              <ActivityIndicator color={MayanColors.jade} />
+              <View style={styles.loadingRow}>
+                <ActivityIndicator color={MayanColors.jade} />
+                <Text style={[styles.loadingText, { color: theme.icon }]}>
+                  {t('dish_detail.loading_phrases')}
+                </Text>
+              </View>
             ) : (
               frases.map((f, i) => (
                 <View key={i} style={[styles.fraseBox, { borderColor: theme.icon }]}>
@@ -327,6 +337,17 @@ const styles = StyleSheet.create({
   explicacionTexto: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  loadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  loadingText: {
+    marginLeft: 12,
+    fontSize: 14,
+    fontStyle: 'italic',
+    flex: 1,
   },
   advertenciaBox: {
     flexDirection: 'row',

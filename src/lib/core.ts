@@ -6,6 +6,7 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Crypto from "expo-crypto";
+import * as Localization from "expo-localization";
 import { crearDataClient, type DataClient } from "@core/data";
 import { crearLlmClient, type LlmClient, type MenuCache } from "@core/llm";
 import type {
@@ -23,6 +24,38 @@ import type {
   ResultadoRecomendacion,
   Variante,
 } from "@core/types";
+
+export const IDIOMAS_SOPORTADOS: ReadonlyArray<IdiomaISO> = [
+  "es",
+  "en",
+  "fr",
+  "de",
+  "pt",
+  "it",
+  "ja",
+  "ar",
+  "zh",
+];
+
+// Normaliza un código de idioma (de i18n o del sistema) al subset que el
+// tipo `IdiomaISO` acepta. Quita variantes regionales ("en-US" → "en") y
+// cae al fallback si el idioma no es soportado.
+export function normalizarIdioma(
+  candidato: string | undefined | null,
+  fallback: IdiomaISO = "es",
+): IdiomaISO {
+  if (!candidato) return fallback;
+  const base = candidato.split("-")[0]?.toLowerCase() ?? "";
+  return (IDIOMAS_SOPORTADOS as readonly string[]).includes(base)
+    ? (base as IdiomaISO)
+    : fallback;
+}
+
+// Lee el idioma del sistema (vía expo-localization). Usado para sembrar
+// perfilPorDefecto y como último recurso si i18n aún no está listo.
+export function idiomaDelSistema(): IdiomaISO {
+  return normalizarIdioma(Localization.getLocales()[0]?.languageCode);
+}
 
 export interface Perfil extends PerfilCore {
   paisOrigen?: string;
@@ -73,7 +106,9 @@ export async function hashBase64(base64: string): Promise<string> {
 
 // Perfil mínimo para que la app arranque sin onboarding completo.
 // Las pantallas deberían reemplazarlo con datos reales al completar
-// el form de perfil.
+// el form de perfil. `idioma` se siembra desde el sistema para que las
+// llamadas al LLM hechas antes del onboarding ya respondan en el idioma
+// correcto.
 export function perfilPorDefecto(): Perfil {
   return {
     alergias: [],
@@ -87,7 +122,7 @@ export function perfilPorDefecto(): Perfil {
     ingredientesEvitar: [],
     ingredientesFavoritos: [],
     estadoActual: "",
-    idioma: "es",
+    idioma: idiomaDelSistema(),
     paisOrigen: "mx",
   };
 }
