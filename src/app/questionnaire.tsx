@@ -532,7 +532,7 @@ export default function QuestionnaireScreen() {
               {t('questionnaire.ingredients', '¿Prefieres evitar alguno de estos ingredientes?')}
             </Text>
             <Text style={[styles.description, { color: theme.icon }]}>
-              Marca lo que prefieras evitar para afinar tus recomendaciones.
+              {t('questionnaire.ingredients_hint', 'Marca lo que prefieras evitar para afinar tus recomendaciones.')}
             </Text>
             <View style={styles.chipGrid}>
               {ingredientOptions.map((opt) => (

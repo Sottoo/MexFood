@@ -81,12 +81,12 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
   const flagUrl = pais !== 'other' ? `https://flagcdn.com/w80/${pais}.png` : null;
 
   const restrictions: string[] = [];
-  if (perfil?.restricciones?.sinGluten) restrictions.push('SIN GLUTEN');
-  if (perfil?.restricciones?.sinLacteos) restrictions.push('SIN LÁCTEOS');
-  if (perfil?.evitaCerdo) restrictions.push('SIN CERDO');
-  if (perfil?.evitaMariscos) restrictions.push('SIN MARISCOS');
-  if (perfil?.evitaAlcohol) restrictions.push('SIN ALCOHOL');
-  if (perfil?.estomagoSensible) restrictions.push('SENSITIVO');
+  if (perfil?.restricciones?.sinGluten) restrictions.push(t('pass.restrictions_labels.no_gluten', 'SIN GLUTEN'));
+  if (perfil?.restricciones?.sinLacteos) restrictions.push(t('pass.restrictions_labels.no_dairy', 'SIN LÁCTEOS'));
+  if (perfil?.evitaCerdo) restrictions.push(t('pass.restrictions_labels.no_pork', 'SIN CERDO'));
+  if (perfil?.evitaMariscos) restrictions.push(t('pass.restrictions_labels.no_seafood', 'SIN MARISCOS'));
+  if (perfil?.evitaAlcohol) restrictions.push(t('pass.restrictions_labels.no_alcohol', 'SIN ALCOHOL'));
+  if (perfil?.estomagoSensible) restrictions.push(t('pass.restrictions_labels.sensitive', 'SENSITIVO'));
 
   const avoidItems = [
     ...(perfil?.alergias || []),
@@ -121,11 +121,11 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
             </View>
 
             <View style={styles.ticketDataGrid}>
-              <View style={styles.dataCol}>
+              <View style={[styles.dataCol, { flex: 5 }]}>
                 <Text style={styles.dataLabel} numberOfLines={1}>{t('pass.ticket.diet', 'DIETA')}</Text>
                 <Text style={[styles.dataValue, { color: MayanColors.jade }]} numberOfLines={1} adjustsFontSizeToFit>{dietLabel}</Text>
               </View>
-              <View style={styles.dataCol}>
+              <View style={[styles.dataCol, { flex: 4 }]}>
                 <Text style={styles.dataLabel} numberOfLines={1}>{t('pass.ticket.spice', 'PICANTE')}</Text>
                 <View style={styles.spiceRow}>
                   <Text style={[styles.dataValue, { color: isSpiceHot ? MayanColors.terracotta : MayanColors.mayanBlue }]} numberOfLines={1} adjustsFontSizeToFit>
@@ -134,7 +134,7 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
                   <Ionicons name="flame" size={14} color={isSpiceHot ? MayanColors.terracotta : MayanColors.mayanBlue} />
                 </View>
               </View>
-              <View style={styles.dataCol}>
+              <View style={[styles.dataCol, { flex: 3 }]}>
                 <Text style={styles.dataLabel} numberOfLines={1}>{t('pass.ticket.language', 'IDIOMA')}</Text>
                 <Text style={[styles.dataValue, { color: MayanColors.gold }]} numberOfLines={1} adjustsFontSizeToFit>
                   {perfil?.idioma === 'en' ? 'ENG' : 'ESP'}
@@ -146,13 +146,13 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
               <Text style={styles.dataLabel}>{t('pass.ticket.restrictions', 'RESTRICCIONES')}</Text>
               <View style={styles.tagsRow}>
                 {restrictions.length > 0 ? (
-                  restrictions.slice(0, 4).map((r, i) => (
+                  restrictions.map((r, i) => (
                     <View key={i} style={[styles.microTag, { backgroundColor: isDark ? '#2D3631' : '#E8F0EC' }]}>
                       <Text style={[styles.microTagText, { color: isDark ? '#B4C2BB' : '#5C6E64' }]} numberOfLines={1}>{r}</Text>
                     </View>
                   ))
                 ) : (
-                  <Text style={[styles.dataValueSmall, { color: isDark ? '#666' : '#999' }]}>Ninguna</Text>
+                  <Text style={[styles.dataValueSmall, { color: isDark ? '#666' : '#999' }]}>{t('pass.restrictions.none', 'NINGUNA')}</Text>
                 )}
               </View>
             </View>
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
 
   ticketDataGrid: {
     flexDirection: 'row',
-    gap: 20,
+    gap: 12,
     marginBottom: 10,
   },
   dataCol: {
