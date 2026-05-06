@@ -3,6 +3,9 @@ import { initReactI18next } from 'react-i18next';
 import * as Localization from 'expo-localization';
 import es from './es.json';
 import en from './en.json';
+import fr from './fr.json';
+import pt from './pt.json';
+import de from './de.json';
 
 const resources = {
     en: {
@@ -10,6 +13,15 @@ const resources = {
     },
     es: {
         translation: es
+    },
+    fr: {
+        translation: fr
+    },
+    pt: {
+        translation: pt
+    },
+    de: {
+        translation: de
     }
 }
 

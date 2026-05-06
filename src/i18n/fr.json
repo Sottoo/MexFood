@@ -1,0 +1,199 @@
+{
+    "tabs": {
+        "explore": "EXPLORER",
+        "map": "CARTE",
+        "saved": "ENREGISTRÉ",
+        "pass": "MON PASS"
+    },
+    "welcome": {
+        "title": "MexFood",
+        "subtitle": "Recommandations de cuisine mexicaine adaptées à votre corps et à vos goûts.",
+        "start_button": "Commencer"
+    },
+    "home": {
+        "header": {
+            "badge": "APP OFFICIELLE '26",
+            "search_placeholder": "Explorer les plats et les lieux..."
+        },
+        "sections": {
+            "official_services": "SERVICES OFFICIELS"
+        },
+        "cards": {
+            "translator": {
+                "title": "Traducteur de Terrain",
+                "description": "Montrez vos allergies au serveur"
+            },
+            "map": {
+                "title": "Carte des Lieux",
+                "description": "Zones de fans et restaurants"
+            },
+            "lineup": {
+                "title": "Votre Sélection",
+                "description": "Plats enregistrés prêts à l'emploi"
+            },
+            "profile": {
+                "title": "Profil du Fan",
+                "description": "Définir les besoins et préférences alimentaires"
+            }
+        }
+    },
+    "map_screen": {
+        "title": "MexFood FIFA 2026",
+        "subtitle": "Recommandations touristiques",
+        "language": {
+            "title": "Langue"
+        },
+        "map": {
+            "title": "Carte et géolocalisation",
+            "use_location": "Utiliser ma position"
+        },
+        "profile": {
+            "title": "Profil de recommandation",
+            "favorites": "Favoris (séparés par des virgules)",
+            "avoid": "Ingrédients à éviter (séparés par des virgules)",
+            "spicy": "Tolérance aux épices",
+            "spicy_low": "faible",
+            "spicy_medium": "moyenne",
+            "spicy_high": "élevée",
+            "sensitive": "Estomac sensible..."
+        }
+    },
+    "questionnaire": {
+        "title": "Profil Initial",
+        "subtitle": "Parlez-nous de vos préférences pour vous donner les meilleures recommandations.",
+        "allergies": "Avez-vous des allergies ?",
+        "allergies_placeholder": "Ex: Noix, Soja...",
+        "diet": "Suivez-vous un régime particulier ?",
+        "diet_options": {
+            "none": "Aucun",
+            "vegan": "Végétalien",
+            "vegetarian": "Végétarien",
+            "keto": "Céto"
+        },
+        "ingredients": "Consommez-vous des produits laitiers, de la viande, du gluten ou des fruits de mer ?",
+        "ingredients_options": {
+            "dairy": "Produits laitiers",
+            "meat": "Viande",
+            "gluten": "Gluten",
+            "seafood": "Fruits de mer"
+        },
+        "spicy": "Votre tolérance aux épices est-elle faible, moyenne ou élevée ?",
+        "spicy_options": {
+            "low": "Faible",
+            "medium": "Moyenne",
+            "high": "Élevée"
+        },
+        "cultural": "Avez-vous des restrictions culturelles ou religieuses ?",
+        "cultural_placeholder": "Ex: Halal, Casher...",
+        "avoid": "Presque terminé. Des aliments à éviter ?",
+        "avoid_placeholder": "Ex: Oignon, Coriandre...",
+        "avoid_hint": "Tapez les ingrédients que vous n'aimez pas et appuyez sur Ajouter",
+        "submit": "Terminer",
+        "allergies_hint": "Tapez et appuyez sur + ou Entrée pour ajouter",
+        "allergies_common_peanuts": "Cacahuète",
+        "allergies_common_soy": "Soja",
+        "allergies_common_egg": "Œuf",
+        "allergies_common_sesame": "Sésame",
+        "allergies_add_button": "Ajouter",
+        "spicy_level_1": "Pas d'épices",
+        "spicy_level_2": "Un peu piquant",
+        "spicy_level_3": "Piquant Authentique",
+        "spicy_level_4": "Très Épicé",
+        "spicy_level_5": "Feu Extrême"
+    },
+    "pass": {
+        "title": "Mon Pass",
+        "subtitle": "Votre résumé et paramètres",
+        "edition": "Édition Officielle",
+        "diet": "RÉGIME",
+        "spice": "ÉPICES",
+        "allergies": "ALLERGIES",
+        "no_allergies": "Aucune",
+        "no_location": "Aucune position",
+        "tilt_hint": "📱 Inclinez votre téléphone pour déplacer le pass",
+        "ticket": {
+            "title_top": "MEXFOOD 2026",
+            "title_main": "PASS FAN",
+            "diet": "RÉGIME",
+            "spice": "ÉPICES",
+            "restrictions": "RESTRICTIONS PRINCIPALES",
+            "none_reported": "Aucune signalée",
+            "allergies": "ALLERGIES / À ÉVITER",
+            "none": "AUCUNE",
+            "venue": "LIEU",
+            "language": "LANGUE"
+        },
+        "diet_labels": {
+            "standard": "STANDARD",
+            "vegan": "VÉGÉTALIEN",
+            "vegetarian": "VÉGÉTARIEN",
+            "keto": "CÉTO"
+        },
+        "spice_labels": {
+            "low": "FAIBLE",
+            "medium": "MOYEN",
+            "high": "ÉLEVÉ"
+        },
+        "restrictions_labels": {
+            "no_gluten": "SANS GLUTEN",
+            "no_dairy": "SANS LACTOSE",
+            "no_pork": "SANS PORC",
+            "no_seafood": "SANS FRUITS DE MER",
+            "no_alcohol": "SANS ALCOOL",
+            "sensitive": "SENSIBLE"
+        },
+        "section_config": "PARAMÈTRES",
+        "edit_button": "Modifier",
+        "privacy_alert_title": "Confidentialité",
+        "privacy_alert_body": "Vos données sont locales et sécurisées.",
+        "section_profile": "PROFIL",
+        "edit_profile": "Modifier le profil alimentaire",
+        "edit_profile_sub": "Allergies, régime, restrictions",
+        "language": "Langue",
+        "section_app": "APPLICATION",
+        "notifications": "Notifications",
+        "notifications_sub": "Alertes de recommandation",
+        "dark_mode": "Mode sombre",
+        "dark_mode_sub": "Suivre le système",
+        "privacy": "Confidentialité",
+        "privacy_sub": "Vos données sont stockées localement",
+        "privacy_detail": "MexFood stocke votre profil uniquement sur votre appareil. Nous ne collectons pas de données personnelles.",
+        "section_about": "À PROPOS",
+        "version": "Version",
+        "help": "Aide et support",
+        "help_detail": "Contactez notre équipe à support@mexfood.app",
+        "rate": "Évaluer l'application",
+        "section_danger": "ZONE DE DANGER",
+        "delete_profile": "Supprimer mon profil",
+        "delete_profile_sub": "Supprime toutes vos préférences",
+        "delete_title": "Supprimer le profil ?",
+        "delete_message": "Toutes vos préférences seront supprimées et vous devrez remplir à nouveau le questionnaire.",
+        "cancel": "Annuler",
+        "delete_confirm": "Supprimer",
+        "footer": "Fait avec 🌮 au Mexique"
+    },
+    "recommendations": {
+        "title": "Recommandations",
+        "loading": "Chargement des données...",
+        "error_loading": "Impossible de charger le profil ou le catalogue."
+    },
+    "dish_detail": {
+        "not_found": "Plat introuvable.",
+        "typical_of": "Typique de",
+        "why_for_me": "Pourquoi pour moi ?",
+        "offline_mode": "(Mode hors ligne)",
+        "explanation_error": "Impossible de générer l'explication.",
+        "ingredients": "Ingrédients",
+        "allergens": "Allergènes connus",
+        "phrases": "Phrases pour commander",
+        "feedback_title": "Cela a-t-il été utile ?",
+        "thanks": "Merci !",
+        "feedback_success": "Vos commentaires nous aident à nous améliorer."
+    },
+    "card_badges": {
+        "for_you": "POUR VOUS",
+        "good_choice": "BON CHOIX",
+        "caution": "ATTENTION",
+        "avoid": "À ÉVITER"
+    }
+}

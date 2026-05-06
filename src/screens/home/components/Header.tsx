@@ -3,11 +3,18 @@ import { View, Text, StyleSheet, ImageBackground, Image, TextInput, TouchableOpa
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { MayanColors } from '@/src/constants/theme';
+import { usePerfil, useUbicacion } from '@/src/lib/hooks';
 import { useTranslation } from 'react-i18next';
 
 export function Header() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { perfil } = usePerfil();
+  const { ciudad } = useUbicacion();
+
+  const pais = perfil?.paisOrigen?.toLowerCase() || 'mx';
+  const flagUrl = `https://flagcdn.com/w80/${pais}.png`;
+  const locationText = ciudad || perfil?.estadoActual || 'México';
 
   return (
     <ImageBackground
@@ -20,12 +27,18 @@ export function Header() {
 
       <View style={styles.content}>
         <View style={styles.topRow}>
-          <View style={styles.badge}>
-            <Ionicons name="trophy" size={14} color={MayanColors.gold} />
-            <Text style={styles.badgeText}>{t('home.header.badge')}</Text>
+          <View style={styles.badgeGroup}>
+            <View style={styles.badge}>
+              <Ionicons name="trophy" size={14} color={MayanColors.gold} />
+              <Text style={styles.badgeText}>{t('home.header.badge')}</Text>
+            </View>
+            <View style={[styles.badge, { marginLeft: 10 }]}>
+              <Ionicons name="location" size={14} color={MayanColors.gold} />
+              <Text style={styles.badgeText}>{locationText}</Text>
+            </View>
           </View>
           <View style={styles.flagContainer}>
-            <Text style={styles.flagEmoji}>🇲🇽</Text>
+            <Image source={{ uri: flagUrl }} style={styles.flagImage} />
           </View>
         </View>
 
@@ -76,6 +89,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
+  badgeGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -107,9 +124,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,
+    overflow: 'hidden',
   },
-  flagEmoji: {
-    fontSize: 20,
+  flagImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
   logoRow: {
     marginBottom: 20,

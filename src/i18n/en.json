@@ -62,7 +62,7 @@
         "title": "Initial Profile",
         "subtitle": "Tell us about your preferences to give you the best recommendations.",
         "allergies": "Do you have any allergies?",
-        "allergies_placeholder": "Ex: Nuts, Soy...",
+        "allergies_placeholder": "Ex: Nuts, Soja...",
         "diet": "Do you follow any diet?",
         "diet_options": {
             "none": "None",
@@ -91,7 +91,7 @@
         "submit": "Finish",
         "allergies_hint": "Type and press + or Enter to add",
         "allergies_common_peanuts": "Peanut",
-        "allergies_common_soy": "Soy",
+        "allergies_common_soy": "Soja",
         "allergies_common_egg": "Egg",
         "allergies_common_sesame": "Sesame",
         "allergies_add_button": "Add",
@@ -111,6 +111,47 @@
         "no_allergies": "None",
         "no_location": "No location",
         "tilt_hint": "📱 Tilt your phone to move the pass",
+        "ticket": {
+            "title_top": "MEXFOOD 2026",
+            "title_main": "FAN PASS",
+            "diet": "DIET",
+            "spice": "SPICE",
+            "restrictions": "MAIN RESTRICTIONS",
+            "none_reported": "None reported",
+            "allergies": "ALLERGIES / AVOID",
+            "none": "NONE",
+            "venue": "VENUE",
+            "language": "LANGUAGE"
+        },
+        "diet_labels": {
+            "standard": "STANDARD",
+            "vegan": "VEGAN",
+            "vegetarian": "VEGETARIAN",
+            "keto": "KETO"
+        },
+        "spice_labels": {
+            "low": "LOW",
+            "medium": "MEDIUM",
+            "high": "HIGH"
+        },
+        "restrictions_labels": {
+            "no_gluten": "NO GLUTEN",
+            "no_dairy": "NO DAIRY",
+            "no_pork": "NO PORK",
+            "no_seafood": "NO SEAFOOD",
+            "no_alcohol": "NO ALCOHOL",
+            "sensitive": "SENSITIVE"
+        },
+        "section_config": "SETTINGS",
+        "edit_button": "Edit",
+        "section_preferences": "MY PREFERENCES",
+        "change_diet_title": "Change Diet",
+        "change_diet_msg": "Select your preference:",
+        "change_country_title": "Change Origin",
+        "change_country_msg": "Select your country:",
+        "origin": "Country of Origin",
+        "privacy_alert_title": "Privacy",
+        "privacy_alert_body": "Your data is local and secure.",
         "section_profile": "PROFILE",
         "edit_profile": "Edit food profile",
         "edit_profile_sub": "Allergies, diet, restrictions",
@@ -136,5 +177,37 @@
         "cancel": "Cancel",
         "delete_confirm": "Delete",
         "footer": "Made with 🌮 in Mexico"
+    },
+    "recommendations": {
+        "title": "Recommendations",
+        "loading": "Loading data...",
+        "error_loading": "Could not load profile or catalog."
+    },
+    "translator": {
+        "instruction": "Show this screen to the waiter to communicate your dietary needs.",
+        "no_restrictions": "You have no recorded restrictions."
+    },
+    "saved": {
+        "empty_title": "You don't have any saved dishes yet.",
+        "empty_subtitle": "Tap the heart on your favorite recommendations to see them here."
+    },
+    "dish_detail": {
+        "not_found": "Dish not found.",
+        "typical_of": "Typical of",
+        "why_for_me": "Why for me?",
+        "offline_mode": "(Offline mode)",
+        "explanation_error": "Could not generate the explanation.",
+        "ingredients": "Ingredients",
+        "allergens": "Known allergens",
+        "phrases": "Phrases to order",
+        "feedback_title": "Was this helpful?",
+        "thanks": "Thank you!",
+        "feedback_success": "Your feedback helps us improve."
+    },
+    "card_badges": {
+        "for_you": "FOR YOU",
+        "good_choice": "GOOD CHOICE",
+        "caution": "CAUTION",
+        "avoid": "AVOID"
     }
 }

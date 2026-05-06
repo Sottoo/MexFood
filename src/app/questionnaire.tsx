@@ -177,17 +177,30 @@ export default function QuestionnaireScreen() {
   const [spicyLevel, setSpicyLevel] = useState(3);
   const [cultural, setCultural] = useState<string[]>([]);
   const [avoid, setAvoid] = useState<string[]>([]);
-  const [estadoActual, setEstadoActual] = useState<string>('');
+  const [paisOrigen, setPaisOrigen] = useState<string>('mx');
   const [estomagoSensible, setEstomagoSensible] = useState<boolean>(false);
 
   // Animations
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  // Total: pasos viejos (allergies, diet, consumes, spicy, cultural, avoid) + 2 nuevos
+  // Total: pasos (country, allergies, diet, consumes, spicy, cultural, avoid, stomach)
   const totalSteps = 8;
 
   // Options Definitions
+  const countryOptions = [
+    { id: 'mx', label: 'México', icon: '🇲🇽' },
+    { id: 'us', label: 'USA', icon: '🇺🇸' },
+    { id: 'ca', label: 'Canada', icon: '🇨🇦' },
+    { id: 'br', label: 'Brasil', icon: '🇧🇷' },
+    { id: 'fr', label: 'France', icon: '🇫🇷' },
+    { id: 'de', label: 'Germany', icon: '🇩🇪' },
+    { id: 'ar', label: 'Argentina', icon: '🇦🇷' },
+    { id: 'pt', label: 'Portugal', icon: '🇵🇹' },
+    { id: 'gb', label: 'UK', icon: '🇬🇧' },
+    { id: 'jp', label: 'Japan', icon: '🇯🇵' },
+  ];
+
   const dietOptions = [
     { id: 'none', label: t('questionnaire.diet_options.none', 'Ninguna'), icon: '🍽️' },
     { id: 'vegan', label: t('questionnaire.diet_options.vegan', 'Vegana'), icon: '🥗' },
@@ -207,13 +220,6 @@ export default function QuestionnaireScreen() {
     { id: 'gluten', label: t('questionnaire.ingredients_options.gluten', 'Gluten'), icon: '🥖' },
     { id: 'seafood', label: t('questionnaire.ingredients_options.seafood', 'Mariscos'), icon: '🦐' },
     { id: 'alcohol', label: t('questionnaire.ingredients_options.alcohol', 'Alcohol'), icon: '🍺' },
-  ];
-
-  // Estados turísticos mexicanos como sugerencias (usuario puede escribir libre).
-  const estadosTuristicos = [
-    'Ciudad de México', 'Jalisco', 'Oaxaca', 'Yucatán', 'Quintana Roo',
-    'Puebla', 'Nuevo León', 'Guanajuato', 'Veracruz', 'Chiapas',
-    'Baja California', 'Baja California Sur', 'Michoacán', 'Sinaloa', 'Nayarit',
   ];
 
   const commonAllergies = [
@@ -315,7 +321,7 @@ export default function QuestionnaireScreen() {
       evitaAlcohol,
       toleranciaPicante,
       estomagoSensible,
-      estadoActual: estadoActual.trim(),
+      paisOrigen,
       idioma,
       ingredientesEvitar: [...avoid, ...cultural],
     });
@@ -326,6 +332,31 @@ export default function QuestionnaireScreen() {
   const renderStepContent = () => {
     switch (step) {
       case 0:
+        return (
+          <View style={styles.stepContainer}>
+            <Text style={[styles.question, { color: theme.text }]}>
+              {t('questionnaire.country', '¿De qué país nos visitas?')}
+            </Text>
+            <Text style={[styles.description, { color: theme.icon }]}>
+              Queremos personalizar tu experiencia según tu origen.
+            </Text>
+            <View style={styles.chipGrid}>
+              {countryOptions.map((opt) => (
+                <Chip
+                  key={opt.id}
+                  label={opt.label}
+                  icon={opt.icon}
+                  selected={paisOrigen === opt.id}
+                  onPress={() => setPaisOrigen(opt.id)}
+                  theme={theme}
+                  isDark={isDark}
+                  large
+                />
+              ))}
+            </View>
+          </View>
+        );
+      case 1:
         return (
           <View style={styles.stepContainer}>
             <Text style={[styles.question, { color: theme.text }]}>
@@ -343,7 +374,7 @@ export default function QuestionnaireScreen() {
             />
           </View>
         );
-      case 1:
+      case 2:
         return (
           <View style={styles.stepContainer}>
             <Text style={[styles.question, { color: theme.text }]}>
@@ -368,7 +399,7 @@ export default function QuestionnaireScreen() {
             </View>
           </View>
         );
-      case 2:
+      case 3:
         return (
           <View style={styles.stepContainer}>
             <Text style={[styles.question, { color: theme.text }]}>
@@ -393,7 +424,7 @@ export default function QuestionnaireScreen() {
             </View>
           </View>
         );
-      case 3:
+      case 4:
         return (
           <View style={styles.stepContainer}>
             <Text style={[styles.question, { color: theme.text, textAlign: 'center' }]}>
@@ -411,7 +442,7 @@ export default function QuestionnaireScreen() {
             />
           </View>
         );
-      case 4:
+      case 5:
         return (
           <View style={styles.stepContainer}>
             <Text style={[styles.question, { color: theme.text }]}>
@@ -428,7 +459,7 @@ export default function QuestionnaireScreen() {
             />
           </View>
         );
-      case 5:
+      case 6:
         return (
           <View style={styles.stepContainer}>
             <Text style={[styles.question, { color: theme.text }]}>
@@ -443,67 +474,6 @@ export default function QuestionnaireScreen() {
               theme={theme}
               isDark={isDark}
             />
-          </View>
-        );
-      case 6:
-        return (
-          <View style={styles.stepContainer}>
-            <Text style={[styles.question, { color: theme.text }]}>
-              {t('questionnaire.location', '¿En qué estado te encuentras?')}
-            </Text>
-            <Text style={[styles.description, { color: theme.icon }]}>
-              {t(
-                'questionnaire.location_hint',
-                'Usamos tu ubicación para sugerirte platillos típicos de la región.',
-              )}
-            </Text>
-            <View style={styles.selectedTagsContainer}>
-              {estadoActual !== '' && (
-                <TouchableOpacity
-                  onPress={() => setEstadoActual('')}
-                  style={[styles.tag, { backgroundColor: MayanColors.jade }]}
-                >
-                  <Text style={styles.tagText}>{estadoActual}</Text>
-                  <Ionicons
-                    name="close-circle"
-                    size={16}
-                    color="#fff"
-                    style={{ marginLeft: 4 }}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  borderColor: isDark ? '#444' : '#e0e0e0',
-                  color: theme.text,
-                  backgroundColor: isDark ? '#2a2a2a' : '#fff',
-                  marginBottom: 12,
-                },
-              ]}
-              value={estadoActual}
-              onChangeText={setEstadoActual}
-              placeholder={t(
-                'questionnaire.location_placeholder',
-                'Escribe el nombre del estado',
-              )}
-              placeholderTextColor={theme.icon}
-            />
-            <View style={styles.suggestionsList}>
-              {estadosTuristicos.map((est) => (
-                <TouchableOpacity
-                  key={est}
-                  onPress={() => setEstadoActual(est)}
-                  style={[styles.suggestionTag, { borderColor: theme.icon }]}
-                >
-                  <Text style={[styles.suggestionText, { color: theme.text }]}>
-                    {est}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
           </View>
         );
       case 7:

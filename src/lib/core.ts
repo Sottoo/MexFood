@@ -84,6 +84,7 @@ export function perfilPorDefecto(): Perfil {
     ingredientesFavoritos: [],
     estadoActual: "",
     idioma: "es",
+    paisOrigen: "mx",
   };
 }
 

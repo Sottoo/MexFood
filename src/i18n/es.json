@@ -62,7 +62,7 @@
         "title": "Perfil Inicial",
         "subtitle": "Cuéntanos sobre tus preferencias para darte las mejores recomendaciones.",
         "allergies": "¿Tienes alguna alergia?",
-        "allergies_placeholder": "Ej: Nuez, Soya...",
+        "allergies_placeholder": "Ej: Nuez, Soy...",
         "diet": "¿Sigues alguna dieta?",
         "diet_options": {
             "none": "Ninguna",
@@ -111,6 +111,47 @@
         "no_allergies": "Ninguna",
         "no_location": "Sin ubicación",
         "tilt_hint": "📱 Inclina tu celular para mover el pase",
+        "ticket": {
+            "title_top": "MEXFOOD 2026",
+            "title_main": "PASE DE AFICIONADO",
+            "diet": "DIETA",
+            "spice": "PICANTE",
+            "restrictions": "RESTRICCIONES PRINCIPALES",
+            "none_reported": "Ninguna reportada",
+            "allergies": "ALERGIAS / EVITAR",
+            "none": "NINGUNA",
+            "venue": "SEDE",
+            "language": "IDIOMA"
+        },
+        "diet_labels": {
+            "standard": "ESTÁNDAR",
+            "vegan": "VEGANO",
+            "vegetarian": "VEGETARIANO",
+            "keto": "KETO"
+        },
+        "spice_labels": {
+            "low": "BAJO",
+            "medium": "MEDIO",
+            "high": "ALTO"
+        },
+        "restrictions_labels": {
+            "no_gluten": "NO GLUTEN",
+            "no_dairy": "NO LÁCTEOS",
+            "no_pork": "NO CERDO",
+            "no_seafood": "NO MARISCOS",
+            "no_alcohol": "NO ALCOHOL",
+            "sensitive": "SENSITIVO"
+        },
+        "section_config": "CONFIGURACIÓN",
+        "edit_button": "Editar",
+        "section_preferences": "MIS PREFERENCIAS",
+        "change_diet_title": "Cambiar Dieta",
+        "change_diet_msg": "Selecciona tu preferencia:",
+        "change_country_title": "Cambiar Origen",
+        "change_country_msg": "Selecciona tu país:",
+        "origin": "País de Origen",
+        "privacy_alert_title": "Privacidad",
+        "privacy_alert_body": "Tus datos son locales y seguros.",
         "section_profile": "PERFIL",
         "edit_profile": "Editar perfil alimenticio",
         "edit_profile_sub": "Alergias, dieta, restricciones",
@@ -136,5 +177,37 @@
         "cancel": "Cancelar",
         "delete_confirm": "Borrar",
         "footer": "Hecho con 🌮 en México"
+    },
+    "recommendations": {
+        "title": "Recomendaciones",
+        "loading": "Cargando datos...",
+        "error_loading": "No se pudo cargar el perfil o catálogo."
+    },
+    "translator": {
+        "instruction": "Muestra esta pantalla al mesero para comunicar tus necesidades alimentarias.",
+        "no_restrictions": "No tienes restricciones registradas."
+    },
+    "saved": {
+        "empty_title": "Aún no tienes platillos guardados.",
+        "empty_subtitle": "Toca el corazón en tus recomendaciones favoritas para verlas aquí."
+    },
+    "dish_detail": {
+        "not_found": "No se pudo encontrar el platillo.",
+        "typical_of": "Típico de",
+        "why_for_me": "¿Por qué para mí?",
+        "offline_mode": "(Modo offline)",
+        "explanation_error": "No pudimos generar la explicación.",
+        "ingredients": "Ingredientes",
+        "allergens": "Alérgenos conocidos",
+        "phrases": "Frases para pedir",
+        "feedback_title": "¿Te fue útil esta información?",
+        "thanks": "¡Gracias!",
+        "feedback_success": "Tu feedback nos ayuda a mejorar."
+    },
+    "card_badges": {
+        "for_you": "PARA TI",
+        "good_choice": "BUENA OPCIÓN",
+        "caution": "PRECAUCIÓN",
+        "avoid": "EVITAR"
     }
 }

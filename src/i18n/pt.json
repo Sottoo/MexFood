@@ -1,0 +1,199 @@
+{
+    "tabs": {
+        "explore": "EXPLORAR",
+        "map": "MAPA",
+        "saved": "SALVOS",
+        "pass": "MEU PASSE"
+    },
+    "welcome": {
+        "title": "MexFood",
+        "subtitle": "Recomendações de comida mexicana adaptadas ao seu corpo e gostos.",
+        "start_button": "Começar"
+    },
+    "home": {
+        "header": {
+            "badge": "APP OFICIAL '26",
+            "search_placeholder": "Explorar pratos e locais..."
+        },
+        "sections": {
+            "official_services": "SERVIÇOS OFICIAIS"
+        },
+        "cards": {
+            "translator": {
+                "title": "Tradutor de Campo",
+                "description": "Mostre suas alergias ao garçom"
+            },
+            "map": {
+                "title": "Mapa de Locais",
+                "description": "Zonas de fãs e restaurantes"
+            },
+            "lineup": {
+                "title": "Sua Escalação",
+                "description": "Pratos salvos prontos"
+            },
+            "profile": {
+                "title": "Perfil do Fã",
+                "description": "Definir necessidades e preferências"
+            }
+        }
+    },
+    "map_screen": {
+        "title": "MexFood FIFA 2026",
+        "subtitle": "Recomendações turísticas",
+        "language": {
+            "title": "Idioma"
+        },
+        "map": {
+            "title": "Mapa e geolocalização",
+            "use_location": "Usar minha localização"
+        },
+        "profile": {
+            "title": "Perfil de recomendação",
+            "favorites": "Favoritos (separados por vírgula)",
+            "avoid": "Ingredientes a evitar (separados por vírgula)",
+            "spicy": "Tolerância a pimenta",
+            "spicy_low": "baixa",
+            "spicy_medium": "média",
+            "spicy_high": "alta",
+            "sensitive": "Estômago sensível..."
+        }
+    },
+    "questionnaire": {
+        "title": "Perfil Inicial",
+        "subtitle": "Conte-nos sobre suas preferências para dar as melhores recomendações.",
+        "allergies": "Você tem alguma alergia?",
+        "allergies_placeholder": "Ex: Nozes, Soja...",
+        "diet": "Você segue alguma dieta?",
+        "diet_options": {
+            "none": "Nenhuma",
+            "vegan": "Vegana",
+            "vegetarian": "Vegetariana",
+            "keto": "Keto"
+        },
+        "ingredients": "Você consome laticínios, carne, glúten ou frutos do mar?",
+        "ingredients_options": {
+            "dairy": "Laticínios",
+            "meat": "Carne",
+            "gluten": "Glúten",
+            "seafood": "Frutos do mar"
+        },
+        "spicy": "Sua tolerância a pimenta é baixa, média ou alta?",
+        "spicy_options": {
+            "low": "Baixa",
+            "medium": "Média",
+            "high": "Alta"
+        },
+        "cultural": "Você tem restrições culturais ou religiosas?",
+        "cultural_placeholder": "Ex: Halal, Kosher...",
+        "avoid": "Quase pronto. Algum alimento a evitar?",
+        "avoid_placeholder": "Ex: Cebola, Coentro...",
+        "avoid_hint": "Digite os ingredientes que você não gosta e pressione Adicionar",
+        "submit": "Finalizar",
+        "allergies_hint": "Digite e pressione + ou Enter para adicionar",
+        "allergies_common_peanuts": "Amendoim",
+        "allergies_common_soy": "Soja",
+        "allergies_common_egg": "Ovo",
+        "allergies_common_sesame": "Gergelim",
+        "allergies_add_button": "Adicionar",
+        "spicy_level_1": "Sem Pimenta",
+        "spicy_level_2": "Um Toque",
+        "spicy_level_3": "Toque Autêntico",
+        "spicy_level_4": "Muito Apimentado",
+        "spicy_level_5": "Fogo Extremo"
+    },
+    "pass": {
+        "title": "Meu Passe",
+        "subtitle": "Seu resumo e configurações",
+        "edition": "Edição Oficial",
+        "diet": "DIETA",
+        "spice": "PIMENTA",
+        "allergies": "ALERGIAS",
+        "no_allergies": "Nenhuma",
+        "no_location": "Sem localização",
+        "tilt_hint": "📱 Incline o telefone para mover o passe",
+        "ticket": {
+            "title_top": "MEXFOOD 2026",
+            "title_main": "PASSE DE FÃ",
+            "diet": "DIETA",
+            "spice": "PIMENTA",
+            "restrictions": "RESTRIÇÕES PRINCIPAIS",
+            "none_reported": "Nenhuma relatada",
+            "allergies": "ALERGIAS / EVITAR",
+            "none": "NENHUMA",
+            "venue": "LOCAL",
+            "language": "IDIOMA"
+        },
+        "diet_labels": {
+            "standard": "PADRÃO",
+            "vegan": "VEGANO",
+            "vegetarian": "VEGETARIANO",
+            "keto": "KETO"
+        },
+        "spice_labels": {
+            "low": "BAIXA",
+            "medium": "MÉDIA",
+            "high": "ALTA"
+        },
+        "restrictions_labels": {
+            "no_gluten": "SEM GLÚTEN",
+            "no_dairy": "SEM LACTOSE",
+            "no_pork": "SEM PORCO",
+            "no_seafood": "SEM FRUTOS DO MAR",
+            "no_alcohol": "SEM ÁLCOOL",
+            "sensitive": "SENSÍVEL"
+        },
+        "section_config": "CONFIGURAÇÕES",
+        "edit_button": "Editar",
+        "privacy_alert_title": "Privacidade",
+        "privacy_alert_body": "Seus dados são locais e seguros.",
+        "section_profile": "PERFIL",
+        "edit_profile": "Editar perfil alimentar",
+        "edit_profile_sub": "Alergias, dieta, restrições",
+        "language": "Idioma",
+        "section_app": "APLICATIVO",
+        "notifications": "Notificações",
+        "notifications_sub": "Alertas de recomendação",
+        "dark_mode": "Modo escuro",
+        "dark_mode_sub": "Seguir o sistema",
+        "privacy": "Privacidade",
+        "privacy_sub": "Seus dados são armazenados localmente",
+        "privacy_detail": "O MexFood armazena seu perfil apenas no seu dispositivo. Não coletamos dados pessoais.",
+        "section_about": "SOBRE",
+        "version": "Versão",
+        "help": "Ajuda e suporte",
+        "help_detail": "Contate nossa equipe em support@mexfood.app",
+        "rate": "Avaliar o aplicativo",
+        "section_danger": "ZONA DE PERIGO",
+        "delete_profile": "Excluir meu perfil",
+        "delete_profile_sub": "Remove todas as suas preferências",
+        "delete_title": "Excluir perfil?",
+        "delete_message": "Todas as suas preferências serão removidas e você precisará preencher o questionário novamente.",
+        "cancel": "Cancelar",
+        "delete_confirm": "Excluir",
+        "footer": "Feito com 🌮 no México"
+    },
+    "recommendations": {
+        "title": "Recomendações",
+        "loading": "Carregando dados...",
+        "error_loading": "Não foi possível carregar o perfil ou catálogo."
+    },
+    "dish_detail": {
+        "not_found": "Prato não encontrado.",
+        "typical_of": "Típico de",
+        "why_for_me": "Por que para mim?",
+        "offline_mode": "(Modo offline)",
+        "explanation_error": "Não foi possível gerar a explicação.",
+        "ingredients": "Ingredientes",
+        "allergens": "Alergênicos conhecidos",
+        "phrases": "Frases para pedir",
+        "feedback_title": "Isso foi útil?",
+        "thanks": "Obrigado!",
+        "feedback_success": "Seu feedback nos ajuda a melhorar."
+    },
+    "card_badges": {
+        "for_you": "PARA VOCÊ",
+        "good_choice": "BOA ESCOLHA",
+        "caution": "CUIDADO",
+        "avoid": "EVITAR"
+    }
+}

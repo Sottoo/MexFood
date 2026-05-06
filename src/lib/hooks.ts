@@ -224,7 +224,8 @@ export function useRecomendaciones(
 //     soloRegional: false, // true para filtrar duro al estado
 //   });
 export interface EstadoUbicacion {
-  ubicacion: string | null;
+  ubicacion: string | null; // Estado
+  ciudad: string | null;    // Ciudad/Municipio
   cargando: boolean;
   error: string | null;
   refrescar: () => Promise<void>;
@@ -232,6 +233,7 @@ export interface EstadoUbicacion {
 
 export function useUbicacion(): EstadoUbicacion {
   const [ubicacion, setUbicacion] = useState<string | null>(null);
+  const [ciudad, setCiudad] = useState<string | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -242,12 +244,11 @@ export function useUbicacion(): EstadoUbicacion {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setUbicacion(null);
+        setCiudad(null);
         setError("Permiso de ubicación denegado");
         return;
       }
 
-      // Lowest = ~3 km de precisión, suficiente para identificar el estado
-      // y mucho más rápido + menos batería que high accuracy.
       const pos = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Lowest,
       });
@@ -257,13 +258,16 @@ export function useUbicacion(): EstadoUbicacion {
         longitude: pos.coords.longitude,
       });
 
-      // En MX el campo `region` viene con el nombre del estado
-      // ("Yucatán", "Ciudad de México", "Estado de México", etc.).
-      const region = resultados[0]?.region?.trim() ?? null;
+      const res = resultados[0];
+      const region = res?.region?.trim() ?? null;
+      const city = res?.city?.trim() || res?.subregion?.trim() || null;
+      
       setUbicacion(region && region !== "" ? region : null);
+      setCiudad(city && city !== "" ? city : null);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setUbicacion(null);
+      setCiudad(null);
       setError(msg);
     } finally {
       setCargando(false);
@@ -274,7 +278,7 @@ export function useUbicacion(): EstadoUbicacion {
     void detectar();
   }, [detectar]);
 
-  return { ubicacion, cargando, error, refrescar: detectar };
+  return { ubicacion, ciudad, cargando, error, refrescar: detectar };
 }
 
 // Explicación del LLM para un match puntual. Cae a plantilla si el LLM
@@ -400,3 +404,75 @@ export function useAnalizarMenu() {
 
   return { analizar, analisis, cargando };
 }
+
+const CLAVE_GUARDADOS = "mexfood:guardados:v1";
+
+// Singleton state for guardados to sync across multiple hook instances
+let globalGuardados: string[] = [];
+const listeners = new Set<(ids: string[]) => void>();
+
+export function useGuardados() {
+  const [ids, setIds] = useState<string[]>(globalGuardados);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    let cancelado = false;
+    
+    // Si ya tenemos datos globales, no necesitamos cargar de disk de nuevo obligatoriamente
+    // pero lo hacemos la primera vez que se monta cualquier instancia.
+    if (globalGuardados.length === 0 && cargando) {
+      AsyncStorage.getItem(CLAVE_GUARDADOS)
+        .then((raw) => {
+          if (!cancelado && raw) {
+            try {
+              const parsed = JSON.parse(raw);
+              globalGuardados = parsed;
+              setIds(parsed);
+              listeners.forEach(l => l(parsed));
+            } catch {
+              setIds([]);
+            }
+          }
+          if (!cancelado) setCargando(false);
+        })
+        .catch(() => {
+          if (!cancelado) setCargando(false);
+        });
+    } else {
+      setIds(globalGuardados);
+      setCargando(false);
+    }
+
+    const listener = (newIds: string[]) => {
+      setIds(newIds);
+    };
+    listeners.add(listener);
+
+    return () => { 
+      cancelado = true; 
+      listeners.delete(listener);
+    };
+  }, []);
+
+  const conmutarGuardado = useCallback(async (id: string) => {
+    const prev = globalGuardados;
+    const nuevo = prev.includes(id) 
+      ? prev.filter((i) => i !== id) 
+      : [...prev, id];
+    
+    globalGuardados = nuevo;
+    listeners.forEach(l => l(nuevo));
+    
+    try {
+      await AsyncStorage.setItem(CLAVE_GUARDADOS, JSON.stringify(nuevo));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const esGuardado = useCallback((id: string) => ids.includes(id), [ids]);
+
+  return { guardados: ids, conmutarGuardado, esGuardado, cargando };
+}
+
+

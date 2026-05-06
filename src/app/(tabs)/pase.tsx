@@ -69,12 +69,13 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
   });
 
   // Extract Profile Data
-  let dietLabel = 'ESTÁNDAR';
-  if (perfil?.dieta?.vegano) dietLabel = 'VEGANO';
-  else if (perfil?.dieta?.vegetariano) dietLabel = 'VEGETARIANO';
-  else if (perfil?.dieta?.keto) dietLabel = 'KETO';
+  let dietLabel = t('pass.diet_labels.standard', 'ESTÁNDAR');
+  if (perfil?.dieta?.vegano) dietLabel = t('pass.diet_labels.vegan', 'VEGANO');
+  else if (perfil?.dieta?.vegetariano) dietLabel = t('pass.diet_labels.vegetarian', 'VEGETARIANO');
+  else if (perfil?.dieta?.keto) dietLabel = t('pass.diet_labels.keto', 'KETO');
 
-  const spiceLevel = perfil?.toleranciaPicante?.toUpperCase() || 'MEDIO';
+  const spiceKey = perfil?.toleranciaPicante || 'medium';
+  const spiceLevel = t(`pass.spice_labels.${spiceKey}`, spiceKey.toUpperCase());
   
   const avoidItems = [
     ...(perfil?.alergias || []),
@@ -82,12 +83,12 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
   ];
 
   const restrictions: string[] = [];
-  if (perfil?.restricciones?.sinGluten) restrictions.push('NO GLUTEN');
-  if (perfil?.restricciones?.sinLacteos) restrictions.push('NO LÁCTEOS');
-  if (perfil?.evitaCerdo) restrictions.push('NO CERDO');
-  if (perfil?.evitaMariscos) restrictions.push('NO MARISCOS');
-  if (perfil?.evitaAlcohol) restrictions.push('NO ALCOHOL');
-  if (perfil?.estomagoSensible) restrictions.push('SENSITIVO');
+  if (perfil?.restricciones?.sinGluten) restrictions.push(t('pass.restrictions_labels.no_gluten', 'NO GLUTEN'));
+  if (perfil?.restricciones?.sinLacteos) restrictions.push(t('pass.restrictions_labels.no_dairy', 'NO LÁCTEOS'));
+  if (perfil?.evitaCerdo) restrictions.push(t('pass.restrictions_labels.no_pork', 'NO CERDO'));
+  if (perfil?.evitaMariscos) restrictions.push(t('pass.restrictions_labels.no_mariscos', 'NO MARISCOS'));
+  if (perfil?.evitaAlcohol) restrictions.push(t('pass.restrictions_labels.no_alcohol', 'NO ALCOHOL'));
+  if (perfil?.estomagoSensible) restrictions.push(t('pass.restrictions_labels.sensitive', 'SENSITIVO'));
 
   return (
     <View style={styles.ticketWrapper}>
@@ -110,8 +111,8 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
                 <Ionicons name="fast-food" size={20} color="#fff" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.titleTop, { color: isDark ? '#8C968F' : '#9E9E9E' }]} numberOfLines={1} adjustsFontSizeToFit>MEXFOOD 2026</Text>
-                <Text style={[styles.titleMain, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]} numberOfLines={1} adjustsFontSizeToFit>PASE DE AFICIONADO</Text>
+                <Text style={[styles.titleTop, { color: isDark ? '#8C968F' : '#9E9E9E' }]} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.title_top', 'MEXFOOD 2026')}</Text>
+                <Text style={[styles.titleMain, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.title_main', 'PASE DE AFICIONADO')}</Text>
               </View>
             </View>
 
@@ -119,17 +120,17 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
             <View style={styles.ticketDataGrid}>
               
               <View style={styles.dataCol}>
-                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>DIETA</Text>
+                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.diet', 'DIETA')}</Text>
                 <Text style={[styles.dataValue, { color: MayanColors.jade }]} numberOfLines={1} adjustsFontSizeToFit>{dietLabel}</Text>
               </View>
 
               <View style={styles.dataCol}>
-                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>PICANTE</Text>
+                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.spice', 'PICANTE')}</Text>
                 <View style={styles.spiceRow}>
-                  <Text style={[styles.dataValue, { color: spiceLevel === 'ALTO' ? MayanColors.terracotta : MayanColors.mayanBlue }]} numberOfLines={1} adjustsFontSizeToFit>
+                  <Text style={[styles.dataValue, { color: spiceKey === 'high' ? MayanColors.terracotta : MayanColors.mayanBlue }]} numberOfLines={1} adjustsFontSizeToFit>
                     {spiceLevel}
                   </Text>
-                  <Ionicons name="flame" size={14} color={spiceLevel === 'ALTO' ? MayanColors.terracotta : MayanColors.mayanBlue} />
+                  <Ionicons name="flame" size={14} color={spiceKey === 'high' ? MayanColors.terracotta : MayanColors.mayanBlue} />
                 </View>
               </View>
 
@@ -137,7 +138,7 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
 
             {/* Restrictions Tags */}
             <View style={styles.tagsArea}>
-              <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>RESTRICCIONES PRINCIPALES</Text>
+              <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.restrictions', 'RESTRICCIONES PRINCIPALES')}</Text>
               <View style={styles.tagsRow}>
                 {restrictions.length > 0 ? (
                   restrictions.slice(0, 4).map((r, i) => (
@@ -146,19 +147,19 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
                     </View>
                   ))
                 ) : (
-                  <Text style={[styles.dataValueSmall, { color: isDark ? '#666' : '#999' }]} numberOfLines={1} adjustsFontSizeToFit>Ninguna reportada</Text>
+                  <Text style={[styles.dataValueSmall, { color: isDark ? '#666' : '#999' }]} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.none_reported', 'Ninguna reportada')}</Text>
                 )}
               </View>
             </View>
 
             {/* Allergies */}
             <View style={styles.allergiesArea}>
-              <Text style={styles.dataLabel}>ALERGIAS / EVITAR</Text>
+              <Text style={styles.dataLabel}>{t('pass.ticket.allergies', 'ALERGIAS / EVITAR')}</Text>
               <Text 
                 style={[styles.allergiesText, { color: avoidItems.length > 0 ? MayanColors.terracotta : (isDark ? '#666' : '#999') }]}
                 numberOfLines={1}
               >
-                {avoidItems.length > 0 ? avoidItems.join(' • ').toUpperCase() : 'NINGUNA'}
+                {avoidItems.length > 0 ? avoidItems.join(' • ').toUpperCase() : t('pass.ticket.none', 'NINGUNA')}
               </Text>
             </View>
 
@@ -180,14 +181,14 @@ function Ticket3D({ perfil, theme, isDark, t }: any) {
             <View style={styles.stubContent}>
               
               <View style={styles.stubItem}>
-                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>SEDE</Text>
+                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.venue', 'SEDE')}</Text>
                 <Text style={[styles.stubValue, { color: isDark ? '#FFF' : '#1A1A1A' }]} numberOfLines={2} adjustsFontSizeToFit>
                   {perfil?.estadoActual ? perfil.estadoActual.toUpperCase() : 'MX-26'}
                 </Text>
               </View>
               
               <View style={styles.stubItem}>
-                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>IDIOMA</Text>
+                <Text style={styles.dataLabel} numberOfLines={1} adjustsFontSizeToFit>{t('pass.ticket.language', 'IDIOMA')}</Text>
                 <Text style={[styles.stubValue, { color: isDark ? '#FFF' : '#1A1A1A' }]} numberOfLines={1} adjustsFontSizeToFit>
                   {perfil?.idioma === 'en' ? 'ENG' : 'ESP'}
                 </Text>
@@ -295,6 +296,67 @@ export default function PaseScreen() {
     }
   }, [i18n, perfil, actualizar]);
 
+  const handleSpiceChange = useCallback(() => {
+    if (!perfil) return;
+    const levels: ('bajo' | 'medio' | 'alto')[] = ['bajo', 'medio', 'alto'];
+    const currentIdx = levels.indexOf(perfil.toleranciaPicante);
+    const nextIdx = (currentIdx + 1) % levels.length;
+    actualizar({ toleranciaPicante: levels[nextIdx] });
+  }, [perfil, actualizar]);
+
+  const handleDietChange = useCallback(() => {
+    if (!perfil) return;
+    
+    const options = [
+      { id: 'standard', label: t('pass.diet_labels.standard', 'ESTÁNDAR') },
+      { id: 'vegan', label: t('pass.diet_labels.vegan', 'VEGANO') },
+      { id: 'vegetarian', label: t('pass.diet_labels.vegetarian', 'VEGETARIANO') },
+      { id: 'keto', label: t('pass.diet_labels.keto', 'KETO') },
+    ];
+
+    Alert.alert(
+      t('pass.change_diet_title', 'Cambiar Dieta'),
+      t('pass.change_diet_msg', 'Selecciona tu preferencia:'),
+      options.map(opt => ({
+        text: opt.label,
+        onPress: () => {
+          actualizar({
+            dieta: {
+              vegano: opt.id === 'vegan',
+              vegetariano: opt.id === 'vegetarian' || opt.id === 'vegan',
+              pescetariano: false,
+              keto: opt.id === 'keto',
+            }
+          });
+        }
+      })).concat([{ text: t('pass.cancel', 'Cancelar'), style: 'cancel' }] as any)
+    );
+  }, [perfil, actualizar, t]);
+
+  const handleCountryChange = useCallback(() => {
+    if (!perfil) return;
+    
+    const countries = [
+      { id: 'mx', label: 'México', icon: '🇲🇽' },
+      { id: 'us', label: 'USA', icon: '🇺🇸' },
+      { id: 'ca', label: 'Canada', icon: '🇨🇦' },
+      { id: 'br', label: 'Brasil', icon: '🇧🇷' },
+      { id: 'fr', label: 'France', icon: '🇫🇷' },
+      { id: 'de', label: 'Germany', icon: '🇩🇪' },
+      { id: 'ar', label: 'Argentina', icon: '🇦🇷' },
+      { id: 'jp', label: 'Japan', icon: '🇯🇵' },
+    ];
+
+    Alert.alert(
+      t('pass.change_country_title', 'Cambiar Origen'),
+      t('pass.change_country_msg', 'Selecciona tu país:'),
+      countries.map(c => ({
+        text: `${c.icon} ${c.label}`,
+        onPress: () => actualizar({ paisOrigen: c.id })
+      })).concat([{ text: t('pass.cancel', 'Cancelar'), style: 'cancel' }] as any)
+    );
+  }, [perfil, actualizar, t]);
+
   const handleEditProfile = useCallback(() => {
     router.push('/questionnaire');
   }, [router]);
@@ -326,7 +388,7 @@ export default function PaseScreen() {
           {t('pass.title', 'Mi Pase')}
         </Text>
         <TouchableOpacity style={styles.headerEditBtn} onPress={handleEditProfile}>
-          <Text style={[styles.headerEditBtnText, { color: MayanColors.jade }]}>Editar</Text>
+          <Text style={[styles.headerEditBtnText, { color: MayanColors.jade }]}>{t('pass.edit_button', 'Editar')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -343,7 +405,40 @@ export default function PaseScreen() {
 
         {/* Settings */}
         <View style={styles.settingsContainer}>
-          <Text style={[styles.settingsSectionTitle, { color: theme.icon }]}>CONFIGURACIÓN</Text>
+          <Text style={[styles.settingsSectionTitle, { color: theme.icon }]}>{t('pass.section_preferences', 'MIS PREFERENCIAS')}</Text>
+          <View style={[styles.settingsSectionCard, { backgroundColor: isDark ? '#222524' : '#fff', borderColor: isDark ? '#2A2D2C' : '#f0f0f0', marginBottom: 24 }]}>
+            <SettingsItem
+              icon="restaurant-outline"
+              label={t('pass.diet', 'Dieta')}
+              subtitle={
+                perfil?.dieta?.vegano ? t('pass.diet_labels.vegan', 'VEGANO') :
+                perfil?.dieta?.vegetariano ? t('pass.diet_labels.vegetarian', 'VEGETARIANO') :
+                perfil?.dieta?.keto ? t('pass.diet_labels.keto', 'KETO') :
+                t('pass.diet_labels.standard', 'ESTÁNDAR')
+              }
+              onPress={handleDietChange}
+              theme={theme}
+              isDark={isDark}
+            />
+            <SettingsItem
+              icon="flame-outline"
+              label={t('pass.spice', 'Tolerancia al Picante')}
+              subtitle={t(`pass.spice_labels.${perfil?.toleranciaPicante || 'medio'}`, (perfil?.toleranciaPicante || 'MEDIO').toUpperCase())}
+              onPress={handleSpiceChange}
+              theme={theme}
+              isDark={isDark}
+            />
+            <SettingsItem
+              icon="flag-outline"
+              label={t('pass.origin', 'País de Origen')}
+              subtitle={perfil?.paisOrigen?.toUpperCase() || 'MX'}
+              onPress={handleCountryChange}
+              theme={theme}
+              isDark={isDark}
+            />
+          </View>
+
+          <Text style={[styles.settingsSectionTitle, { color: theme.icon }]}>{t('pass.section_config', 'CONFIGURACIÓN')}</Text>
           <View style={[styles.settingsSectionCard, { backgroundColor: isDark ? '#222524' : '#fff', borderColor: isDark ? '#2A2D2C' : '#f0f0f0' }]}>
             
             <SettingsItem
@@ -374,16 +469,9 @@ export default function PaseScreen() {
           <Text style={[styles.settingsSectionTitle, { color: theme.icon, marginTop: 24 }]}>ACERCA DE</Text>
           <View style={[styles.settingsSectionCard, { backgroundColor: isDark ? '#222524' : '#fff', borderColor: isDark ? '#2A2D2C' : '#f0f0f0' }]}>
             <SettingsItem
-              icon="information-circle-outline"
-              label={t('pass.version', 'Versión')}
-              subtitle="1.0.0 — MexFood"
-              theme={theme}
-              isDark={isDark}
-            />
-            <SettingsItem
               icon="shield-checkmark-outline"
               label={t('pass.privacy', 'Privacidad')}
-              onPress={() => Alert.alert('Privacidad', 'Tus datos son locales y seguros.')}
+              onPress={() => Alert.alert(t('pass.privacy_alert_title', 'Privacidad'), t('pass.privacy_alert_body', 'Tus datos son locales y seguros.'))}
               theme={theme}
               isDark={isDark}
             />
