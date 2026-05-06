@@ -36,7 +36,6 @@ import type {
   Catalogo,
   Explicacion,
   Frase,
-  Perfil,
   Platillo,
   Recomendacion,
   ResultadoRecomendacion,
@@ -47,6 +46,7 @@ import {
   obtenerClientes,
   perfilPorDefecto,
   storageCatalogo,
+  type Perfil,
 } from "./core";
 
 // Normaliza para comparar estados sin importar acentos / mayúsculas.

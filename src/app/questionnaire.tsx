@@ -9,7 +9,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
-  Dimensions
+  Dimensions,
+  Image,
+  ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -179,6 +181,7 @@ export default function QuestionnaireScreen() {
   const [avoid, setAvoid] = useState<string[]>([]);
   const [paisOrigen, setPaisOrigen] = useState<string>('mx');
   const [estomagoSensible, setEstomagoSensible] = useState<boolean>(false);
+  const [searchCountry, setSearchCountry] = useState<string>('');
 
   // Animations
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -189,16 +192,50 @@ export default function QuestionnaireScreen() {
 
   // Options Definitions
   const countryOptions = [
-    { id: 'mx', label: 'México', icon: '🇲🇽' },
-    { id: 'us', label: 'USA', icon: '🇺🇸' },
-    { id: 'ca', label: 'Canada', icon: '🇨🇦' },
-    { id: 'br', label: 'Brasil', icon: '🇧🇷' },
-    { id: 'fr', label: 'France', icon: '🇫🇷' },
-    { id: 'de', label: 'Germany', icon: '🇩🇪' },
-    { id: 'ar', label: 'Argentina', icon: '🇦🇷' },
-    { id: 'pt', label: 'Portugal', icon: '🇵🇹' },
-    { id: 'gb', label: 'UK', icon: '🇬🇧' },
-    { id: 'jp', label: 'Japan', icon: '🇯🇵' },
+    { id: 'mx', label: 'México' },
+    { id: 'us', label: 'Estados Unidos' },
+    { id: 'ca', label: 'Canadá' },
+    { id: 'de', label: 'Alemania' },
+    { id: 'sa', label: 'Arabia Saudita' },
+    { id: 'ar', label: 'Argentina' },
+    { id: 'au', label: 'Australia' },
+    { id: 'be', label: 'Bélgica' },
+    { id: 'bo', label: 'Bolivia' },
+    { id: 'br', label: 'Brasil' },
+    { id: 'cl', label: 'Chile' },
+    { id: 'cn', label: 'China' },
+    { id: 'co', label: 'Colombia' },
+    { id: 'kr', label: 'Corea del Sur' },
+    { id: 'cr', label: 'Costa Rica' },
+    { id: 'hr', label: 'Croacia' },
+    { id: 'dk', label: 'Dinamarca' },
+    { id: 'ec', label: 'Ecuador' },
+    { id: 'eg', label: 'Egipto' },
+    { id: 'sv', label: 'El Salvador' },
+    { id: 'es', label: 'España' },
+    { id: 'fr', label: 'Francia' },
+    { id: 'gt', label: 'Guatemala' },
+    { id: 'hn', label: 'Honduras' },
+    { id: 'in', label: 'India' },
+    { id: 'it', label: 'Italia' },
+    { id: 'jp', label: 'Japón' },
+    { id: 'ma', label: 'Marruecos' },
+    { id: 'ng', label: 'Nigeria' },
+    { id: 'no', label: 'Noruega' },
+    { id: 'nl', label: 'Países Bajos' },
+    { id: 'pa', label: 'Panamá' },
+    { id: 'py', label: 'Paraguay' },
+    { id: 'pe', label: 'Perú' },
+    { id: 'pl', label: 'Polonia' },
+    { id: 'pt', label: 'Portugal' },
+    { id: 'gb', label: 'Reino Unido' },
+    { id: 'sn', label: 'Senegal' },
+    { id: 'za', label: 'Sudáfrica' },
+    { id: 'se', label: 'Suecia' },
+    { id: 'ch', label: 'Suiza' },
+    { id: 'uy', label: 'Uruguay' },
+    { id: 've', label: 'Venezuela' },
+    { id: 'other', label: 'Otro' },
   ];
 
   const dietOptions = [
@@ -340,19 +377,76 @@ export default function QuestionnaireScreen() {
             <Text style={[styles.description, { color: theme.icon }]}>
               Queremos personalizar tu experiencia según tu origen.
             </Text>
-            <View style={styles.chipGrid}>
-              {countryOptions.map((opt) => (
-                <Chip
-                  key={opt.id}
-                  label={opt.label}
-                  icon={opt.icon}
-                  selected={paisOrigen === opt.id}
-                  onPress={() => setPaisOrigen(opt.id)}
-                  theme={theme}
-                  isDark={isDark}
-                  large
+            <View style={styles.countriesWrapper}>
+              <View style={[styles.searchContainer, { backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5', borderColor: isDark ? '#444' : '#e0e0e0' }]}>
+                <Ionicons name="search" size={20} color={theme.icon} />
+                <TextInput
+                  style={[styles.searchInput, { color: theme.text }]}
+                  placeholder={t('questionnaire.search_country', 'Buscar país...')}
+                  placeholderTextColor={theme.icon}
+                  value={searchCountry}
+                  onChangeText={setSearchCountry}
                 />
-              ))}
+                {searchCountry.length > 0 && (
+                  <TouchableOpacity onPress={() => setSearchCountry('')}>
+                    <Ionicons name="close-circle" size={20} color={theme.icon} />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              <ScrollView 
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.countriesScrollContent}
+              >
+                {countryOptions
+                  .filter(opt => opt.label.toLowerCase().includes(searchCountry.toLowerCase()))
+                  .map((opt) => {
+                  const isSelected = paisOrigen === opt.id;
+                  return (
+                    <TouchableOpacity
+                      key={opt.id}
+                      style={[
+                        styles.countryRow,
+                        {
+                          backgroundColor: isDark ? '#2a2a2a' : '#ffffff',
+                          borderColor: isSelected ? MayanColors.jade : (isDark ? '#444' : '#e0e0e0'),
+                        },
+                        isSelected && {
+                          backgroundColor: isDark ? '#1f3328' : '#f0fdf4',
+                        }
+                      ]}
+                      onPress={() => setPaisOrigen(opt.id)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.countryRowLeft}>
+                        {opt.id === 'other' ? (
+                          <Text style={[styles.countryFlag, { fontSize: 24, textAlign: 'center', lineHeight: 24, borderWidth: 0, marginRight: 16 }]}>🌍</Text>
+                        ) : (
+                          <Image 
+                            source={{ uri: `https://flagcdn.com/w80/${opt.id}.png` }} 
+                            style={styles.countryFlag}
+                          />
+                        )}
+                        <Text style={[
+                          styles.countryRowText, 
+                          { color: isSelected ? MayanColors.jade : theme.text },
+                          isSelected && { fontWeight: 'bold' }
+                        ]}>
+                          {opt.label}
+                        </Text>
+                      </View>
+                      
+                      <View style={[
+                        styles.radioCircle,
+                        { borderColor: isSelected ? MayanColors.jade : theme.icon },
+                        isSelected && { backgroundColor: MayanColors.jade }
+                      ]}>
+                        {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
             </View>
           </View>
         );
@@ -752,5 +846,64 @@ const styles = StyleSheet.create({
   spiceLabel: {
     fontSize: 22,
     fontWeight: 'bold',
+  },
+  countriesWrapper: {
+    maxHeight: Dimensions.get('window').height * 0.5,
+    marginTop: 10,
+  },
+  countriesScrollContent: {
+    paddingBottom: 20,
+    gap: 12,
+  },
+  countryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  countryRowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  countryFlag: {
+    width: 32,
+    height: 24,
+    borderRadius: 4,
+    marginRight: 16,
+    borderWidth: 0.5,
+    borderColor: 'rgba(0,0,0,0.1)',
+  },
+  countryRowText: {
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  radioCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
   }
 });

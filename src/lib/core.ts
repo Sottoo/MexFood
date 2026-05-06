@@ -17,12 +17,16 @@ import type {
   Frase,
   IdiomaISO,
   ItemMenuDetectado,
-  Perfil,
+  Perfil as PerfilCore,
   Platillo,
   Recomendacion,
   ResultadoRecomendacion,
   Variante,
 } from "@core/types";
+
+export interface Perfil extends PerfilCore {
+  paisOrigen?: string;
+}
 
 export interface Clientes {
   data: DataClient;
@@ -108,7 +112,6 @@ export type {
   Frase,
   IdiomaISO,
   ItemMenuDetectado,
-  Perfil,
   Platillo,
   Recomendacion,
   ResultadoRecomendacion,
