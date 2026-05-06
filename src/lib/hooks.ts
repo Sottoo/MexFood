@@ -60,37 +60,57 @@ function normalizarEstado(s: string): string {
 
 const CLAVE_PERFIL = "mexfood:perfil:v1";
 
+let globalPerfil: Perfil | null = null;
+const perfilListeners = new Set<(p: Perfil | null) => void>();
+
 // Perfil persistido en AsyncStorage. `perfil === null` significa "todavía
 // no existe" — rutear a onboarding. Una vez completado, `guardar(p)` lo
 // persiste y actualiza el estado.
 export function usePerfil() {
-  const [perfil, setPerfil] = useState<Perfil | null>(null);
+  const [perfil, setPerfil] = useState<Perfil | null>(globalPerfil);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     let cancelado = false;
-    AsyncStorage.getItem(CLAVE_PERFIL)
-      .then((raw) => {
-        if (cancelado) return;
-        if (raw) {
-          try {
-            setPerfil(JSON.parse(raw) as Perfil);
-          } catch {
-            setPerfil(null);
+    
+    if (globalPerfil === null && cargando) {
+      AsyncStorage.getItem(CLAVE_PERFIL)
+        .then((raw) => {
+          if (!cancelado && raw) {
+            try {
+              const parsed = JSON.parse(raw) as Perfil;
+              globalPerfil = parsed;
+              setPerfil(parsed);
+              perfilListeners.forEach(l => l(parsed));
+            } catch {
+              setPerfil(null);
+            }
           }
-        }
-        setCargando(false);
-      })
-      .catch(() => {
-        if (!cancelado) setCargando(false);
-      });
+          if (!cancelado) setCargando(false);
+        })
+        .catch(() => {
+          if (!cancelado) setCargando(false);
+        });
+    } else {
+      setPerfil(globalPerfil);
+      setCargando(false);
+    }
+
+    const listener = (newPerfil: Perfil | null) => {
+      setPerfil(newPerfil);
+    };
+    perfilListeners.add(listener);
+
     return () => {
       cancelado = true;
+      perfilListeners.delete(listener);
     };
   }, []);
 
   const guardar = useCallback(async (nuevo: Perfil) => {
+    globalPerfil = nuevo;
     setPerfil(nuevo);
+    perfilListeners.forEach(l => l(nuevo));
     try {
       await AsyncStorage.setItem(CLAVE_PERFIL, JSON.stringify(nuevo));
     } catch {
@@ -100,14 +120,17 @@ export function usePerfil() {
 
   const actualizar = useCallback(
     async (parcial: Partial<Perfil>) => {
-      const base = perfil ?? perfilPorDefecto();
+      // Use the latest globalPerfil to ensure no stale data
+      const base = globalPerfil ?? perfilPorDefecto();
       await guardar({ ...base, ...parcial });
     },
-    [perfil, guardar],
+    [guardar],
   );
 
   const borrar = useCallback(async () => {
+    globalPerfil = null;
     setPerfil(null);
+    perfilListeners.forEach(l => l(null));
     try {
       await AsyncStorage.removeItem(CLAVE_PERFIL);
     } catch {

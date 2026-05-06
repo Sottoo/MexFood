@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -175,13 +175,45 @@ export default function QuestionnaireScreen() {
   // "pork" reemplazó al antiguo "meat" — la semántica del backend es
   // `evitaCerdo`, no "evita toda carne". Si alguien no come NADA de
   // carne debería elegir la dieta vegetariana en el paso anterior.
-  const [consumes, setConsumes] = useState<string[]>(['dairy', 'pork', 'gluten', 'seafood', 'alcohol']);
+  const [avoidsList, setAvoidsList] = useState<string[]>([]);
   const [spicyLevel, setSpicyLevel] = useState(3);
   const [cultural, setCultural] = useState<string[]>([]);
   const [avoid, setAvoid] = useState<string[]>([]);
   const [paisOrigen, setPaisOrigen] = useState<string>('mx');
   const [estomagoSensible, setEstomagoSensible] = useState<boolean>(false);
   const [searchCountry, setSearchCountry] = useState<string>('');
+
+  // Sincronizar el estado local con el perfil existente (si lo hay) para no borrar
+  // preferencias cuando el usuario entra a "Editar".
+  const { perfil, cargando: perfilCargando } = usePerfil();
+  useEffect(() => {
+    if (!perfilCargando && perfil) {
+      setPaisOrigen(perfil.paisOrigen || 'mx');
+      setAllergies(perfil.alergias || []);
+      
+      let initialDiet = 'none';
+      if (perfil.dieta?.vegano) initialDiet = 'vegan';
+      else if (perfil.dieta?.vegetariano) initialDiet = 'vegetarian';
+      else if (perfil.dieta?.keto) initialDiet = 'keto';
+      setDiet(initialDiet);
+
+      const initialAvoids = [];
+      if (perfil.restricciones?.sinLacteos) initialAvoids.push('dairy');
+      if (perfil.evitaCerdo) initialAvoids.push('pork');
+      if (perfil.restricciones?.sinGluten) initialAvoids.push('gluten');
+      if (perfil.evitaMariscos) initialAvoids.push('seafood');
+      if (perfil.evitaAlcohol) initialAvoids.push('alcohol');
+      setAvoidsList(initialAvoids);
+
+      let initialSpicy = 3;
+      if (perfil.toleranciaPicante === 'bajo') initialSpicy = 1;
+      else if (perfil.toleranciaPicante === 'alto') initialSpicy = 5;
+      setSpicyLevel(initialSpicy);
+
+      setAvoid(perfil.ingredientesEvitar || []);
+      setEstomagoSensible(perfil.estomagoSensible || false);
+    }
+  }, [perfil, perfilCargando]);
 
   // Animations
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -312,11 +344,11 @@ export default function QuestionnaireScreen() {
     }
   };
 
-  const toggleConsume = (item: string) => {
-    if (consumes.includes(item)) {
-      setConsumes(consumes.filter(i => i !== item));
+  const toggleAvoid = (item: string) => {
+    if (avoidsList.includes(item)) {
+      setAvoidsList(avoidsList.filter(i => i !== item));
     } else {
-      setConsumes([...consumes, item]);
+      setAvoidsList([...avoidsList, item]);
     }
   };
 
@@ -325,11 +357,11 @@ export default function QuestionnaireScreen() {
     const isVegetarian = diet === 'vegetarian' || isVegan; // vegano implica vegetariano
     const isKeto = diet === 'keto';
 
-    const sinLacteos = !consumes.includes('dairy');
-    const sinGluten = !consumes.includes('gluten');
-    const evitaMariscos = !consumes.includes('seafood');
-    const evitaCerdo = !consumes.includes('pork');
-    const evitaAlcohol = !consumes.includes('alcohol');
+    const sinLacteos = avoidsList.includes('dairy');
+    const sinGluten = avoidsList.includes('gluten');
+    const evitaMariscos = avoidsList.includes('seafood');
+    const evitaCerdo = avoidsList.includes('pork');
+    const evitaAlcohol = avoidsList.includes('alcohol');
 
     // Map 1-5 to bajo, medio, alto
     let toleranciaPicante: 'bajo' | 'medio' | 'alto' = 'medio';
@@ -497,10 +529,10 @@ export default function QuestionnaireScreen() {
         return (
           <View style={styles.stepContainer}>
             <Text style={[styles.question, { color: theme.text }]}>
-              {t('questionnaire.ingredients', '¿Sueles consumir estos ingredientes?')}
+              {t('questionnaire.ingredients', '¿Prefieres evitar alguno de estos ingredientes?')}
             </Text>
             <Text style={[styles.description, { color: theme.icon }]}>
-              Desmarca lo que prefieras evitar para afinar tus recomendaciones.
+              Marca lo que prefieras evitar para afinar tus recomendaciones.
             </Text>
             <View style={styles.chipGrid}>
               {ingredientOptions.map((opt) => (
@@ -508,8 +540,8 @@ export default function QuestionnaireScreen() {
                   key={opt.id}
                   label={opt.label}
                   icon={opt.icon}
-                  selected={consumes.includes(opt.id)}
-                  onPress={() => toggleConsume(opt.id)}
+                  selected={avoidsList.includes(opt.id)}
+                  onPress={() => toggleAvoid(opt.id)}
                   theme={theme}
                   isDark={isDark}
                   large
