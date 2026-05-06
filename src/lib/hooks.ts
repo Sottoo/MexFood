@@ -20,6 +20,7 @@
 //   const analisis = await analizar(base64, "image/jpeg", perfil, catalogo);
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from "expo-location";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   analizarMenu as analizarMenuCore,
@@ -47,6 +48,15 @@ import {
   perfilPorDefecto,
   storageCatalogo,
 } from "./core";
+
+// Normaliza para comparar estados sin importar acentos / mayúsculas.
+function normalizarEstado(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .trim();
+}
 
 const CLAVE_PERFIL = "mexfood:perfil:v1";
 
@@ -136,18 +146,135 @@ export function useCatalogo() {
 }
 
 // Recomendaciones ordenadas para el perfil actual. Memoizado — solo recalcula
-// cuando cambian perfil o catálogo.
+// cuando cambian perfil, catálogo, o las opciones relevantes.
+//
+// Geolocalización (opcional):
+// - `ubicacion`: si se pasa un nombre de estado (ej. "Yucatán", típicamente
+//   detectado por GPS vía `useUbicacion()`), sobreescribe `perfil.estadoActual`
+//   para que el bonus regional (+10) se aplique al estado real, no al que
+//   el usuario haya seleccionado en el onboarding. Pasar `null` o `undefined`
+//   conserva el comportamiento original (usa `perfil.estadoActual`).
+// - `soloRegional`: si es `true` Y hay `ubicacion`, filtra los resultados a
+//   ÚNICAMENTE platillos donde `platillo.estadoTipico` matchea la ubicación.
+//   Ojo: en estados con poca cobertura del catálogo la lista puede quedar
+//   muy corta o vacía. La UI debería tener un fallback ("no hay platillos
+//   típicos cargados de tu estado, mostrando alternativas").
+export interface OpcionesUseRecomendaciones {
+  topN?: number;
+  maxEvitar?: number;
+  ubicacion?: string | null;
+  soloRegional?: boolean;
+}
+
 export function useRecomendaciones(
   perfil: Perfil | null,
   catalogo: Catalogo | null,
-  opciones: { topN?: number; maxEvitar?: number } = {},
+  opciones: OpcionesUseRecomendaciones = {},
 ): ResultadoRecomendacion {
+  const { topN, maxEvitar, ubicacion, soloRegional } = opciones;
+
   return useMemo(() => {
     if (!perfil || !catalogo) {
       return { recomendados: [], evitar: [], totalEvaluados: 0 };
     }
-    return recomendarPlatillos(perfil, catalogo, opciones);
-  }, [perfil, catalogo, opciones.topN, opciones.maxEvitar]);
+
+    const perfilEfectivo: Perfil = ubicacion
+      ? { ...perfil, estadoActual: ubicacion }
+      : perfil;
+
+    const res = recomendarPlatillos(perfilEfectivo, catalogo, {
+      topN,
+      maxEvitar,
+    });
+
+    if (!soloRegional || !ubicacion) return res;
+
+    const objetivo = normalizarEstado(ubicacion);
+    const platillosPorId = new Map(catalogo.platillos.map((p) => [p.id, p]));
+    const enEstado = (rec: Recomendacion) => {
+      const p = platillosPorId.get(rec.platilloId);
+      if (!p?.estadoTipico) return false;
+      const e = normalizarEstado(p.estadoTipico);
+      return e === objetivo || e.includes(objetivo) || objetivo.includes(e);
+    };
+
+    return {
+      recomendados: res.recomendados.filter(enEstado),
+      evitar: res.evitar.filter(enEstado),
+      totalEvaluados: res.totalEvaluados,
+    };
+  }, [perfil, catalogo, topN, maxEvitar, ubicacion, soloRegional]);
+}
+
+// Detecta la ubicación del usuario vía GPS y reverse-geocoding y devuelve
+// el nombre del estado mexicano (ej. "Yucatán"). Pásalo a `useRecomendaciones`
+// como `ubicacion` para overridear `perfil.estadoActual`.
+//
+// Flujo:
+//   1. Pide permiso de ubicación (foreground) la primera vez.
+//   2. Lee coordenadas con baja precisión (no necesitamos exactitud, solo el estado).
+//   3. Reverse-geocode → toma el campo `region` (que en MX es el estado).
+//   4. Si el usuario niega permiso o algo falla, devuelve `ubicacion: null`
+//      sin lanzar — el caller cae al `perfil.estadoActual` del onboarding.
+//
+// Uso:
+//   const { ubicacion, cargando, error, refrescar } = useUbicacion();
+//   const { recomendados } = useRecomendaciones(perfil, catalogo, {
+//     ubicacion,           // null si no hay GPS, string si sí
+//     soloRegional: false, // true para filtrar duro al estado
+//   });
+export interface EstadoUbicacion {
+  ubicacion: string | null;
+  cargando: boolean;
+  error: string | null;
+  refrescar: () => Promise<void>;
+}
+
+export function useUbicacion(): EstadoUbicacion {
+  const [ubicacion, setUbicacion] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const detectar = useCallback(async () => {
+    setCargando(true);
+    setError(null);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setUbicacion(null);
+        setError("Permiso de ubicación denegado");
+        return;
+      }
+
+      // Lowest = ~3 km de precisión, suficiente para identificar el estado
+      // y mucho más rápido + menos batería que high accuracy.
+      const pos = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Lowest,
+      });
+
+      const resultados = await Location.reverseGeocodeAsync({
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+      });
+
+      // En MX el campo `region` viene con el nombre del estado
+      // ("Yucatán", "Ciudad de México", "Estado de México", etc.).
+      const region = resultados[0]?.region?.trim() ?? null;
+      setUbicacion(region && region !== "" ? region : null);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setUbicacion(null);
+      setError(msg);
+    } finally {
+      setCargando(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void detectar();
+  }, [detectar]);
+
+  return { ubicacion, cargando, error, refrescar: detectar };
 }
 
 // Explicación del LLM para un match puntual. Cae a plantilla si el LLM

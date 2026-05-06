@@ -197,6 +197,101 @@ function PantallaHome({ perfil, catalogo }) {
 - **Naranja** (30-49): varios puntos en contra pero no bloqueado.
 - **Rojo:** bloqueado por hard filter (alergia, dieta, etc.).
 
+### 4.1 Filtrar por ubicación (GPS)
+
+Si quieres mostrar platillos típicos del estado donde está el usuario,
+combina `useUbicacion()` (que detecta el estado por GPS) con
+`useRecomendaciones()`:
+
+```ts
+import { useUbicacion, useCatalogo, useRecomendaciones, usePerfil } from "@/src/lib/hooks";
+
+function HomeRegional() {
+  const { perfil } = usePerfil();
+  const { catalogo } = useCatalogo();
+  const { ubicacion, cargando: ubiCargando } = useUbicacion();
+
+  // Modo SUAVE: el platillo del estado sube al top por bonus regional
+  // pero no se filtra el resto.
+  const { recomendados } = useRecomendaciones(perfil, catalogo, {
+    topN: 20,
+    ubicacion,                  // null si GPS denegado / no disponible
+  });
+
+  // Modo ESTRICTO: solo platillos donde platillo.estadoTipico matchea ubicacion.
+  // Si ubicacion es null, este flag se ignora.
+  const { recomendados: tipicos } = useRecomendaciones(perfil, catalogo, {
+    topN: 10,
+    ubicacion,
+    soloRegional: true,
+  });
+
+  return (
+    <>
+      <Section titulo="Para ti">{recomendados}</Section>
+      {ubicacion && tipicos.length > 0 && (
+        <Section titulo={`Típico de ${ubicacion}`}>{tipicos}</Section>
+      )}
+    </>
+  );
+}
+```
+
+**Comportamiento:**
+- `ubicacion: null/undefined` → usa `perfil.estadoActual` del onboarding
+  (sin cambios respecto al uso original).
+- `ubicacion: "Yucatán"` (sin `soloRegional`) → sobreescribe
+  `perfil.estadoActual` para el bonus regional. Los platillos del estado
+  detectado suben al top, el resto sigue disponible.
+- `ubicacion: "Yucatán"` + `soloRegional: true` → SOLO platillos donde
+  `platillo.estadoTipico` matchea "Yucatán" (comparación normalizada,
+  sin acentos / mayúsculas, con `includes` por si hay variantes
+  como "Estado de Yucatán" vs "Yucatán").
+
+**Caveat:** algunos estados tienen poca cobertura en el catálogo (220
+platillos repartidos en 32 estados). Si `soloRegional` deja la lista
+vacía, la UI debería mostrar mensaje + caer a modo suave.
+
+### 4.2 Detección de ubicación con GPS
+
+El hook `useUbicacion()` envuelve `expo-location`:
+
+```ts
+const { ubicacion, cargando, error, refrescar } = useUbicacion();
+```
+
+- En el primer mount, pide permiso `requestForegroundPermissionsAsync`.
+  El usuario verá el prompt nativo del sistema.
+- Si concede: `getCurrentPositionAsync` con precisión baja (~3 km, suficiente
+  para el estado, ahorra batería) + `reverseGeocodeAsync` que devuelve un
+  campo `region` con el nombre del estado (ej. "Yucatán").
+- Si niega o falla: `ubicacion: null`, `error` con la razón. **Nunca lanza.**
+- `refrescar()`: vuelve a intentar (útil para un botón "ubicar de nuevo").
+
+El comparador de `estadoTipico` es tolerante (normaliza NFD + lowercase,
+usa `includes` en ambas direcciones), así que pequeñas variaciones del
+geocoder ("Yucatán" vs "Estado de Yucatán") matchean igual. Pero "CDMX"
+no matchea "Ciudad de México" — si quieres soportar abreviaciones, agrega
+un mapeo manual en el front antes de pasarlo a la hook.
+
+**Permisos en producción:** para builds nativos (no Expo Go) necesitas
+agregar a [app.json](../app.json):
+```json
+{
+  "expo": {
+    "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "MexFood usa tu ubicación para mostrarte platillos típicos del estado donde estás."
+      }
+    },
+    "android": {
+      "permissions": ["ACCESS_COARSE_LOCATION"]
+    }
+  }
+}
+```
+En Expo Go esto NO es necesario — funciona out of the box.
+
 ---
 
 ## 5. Explicación personalizada (LLM)
@@ -396,6 +491,7 @@ Todos en `src/lib/hooks.ts`:
 | `usePerfil()` | `{ perfil, cargando, guardar, actualizar, borrar }` | App entera — cargar en root layout |
 | `useCatalogo()` | `{ catalogo, cargando }` | Root layout o pantallas que listan platillos |
 | `useRecomendaciones(perfil, catalogo, opts?)` | `{ recomendados, evitar, totalEvaluados }` | Home, listados filtrados por perfil |
+| `useUbicacion()` | `{ ubicacion, cargando, error, refrescar }` | Detecta estado del usuario por GPS para combinar con `useRecomendaciones` |
 | `useExplicacion(perfil, rec, platillo, variante)` | `{ explicacion, cargando }` | Pantalla de detalle |
 | `useFrases(perfil, platillo)` | `{ frases, cargando }` | Pantalla de detalle |
 | `useAnalizarMenu()` | `{ analizar, analisis, cargando }` | Pantalla del scanner |

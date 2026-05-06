@@ -16,7 +16,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { useCatalogo, useRecomendaciones } from "@/src/lib/hooks";
+import { useCatalogo, useRecomendaciones, useUbicacion } from "@/src/lib/hooks";
 import {
   perfilPorDefecto,
   type Catalogo,
@@ -85,11 +85,18 @@ function nombresDe(catalogo: Catalogo | null, r: Recomendacion) {
 // ScrollView, para poderlo embeber dentro de otras pantallas.
 export function DebugPanel() {
   const [presetIdx, setPresetIdx] = useState(0);
+  const [usarGps, setUsarGps] = useState(false);
+  const [soloRegional, setSoloRegional] = useState(false);
   const preset = PRESETS[presetIdx]!;
   const { catalogo, cargando } = useCatalogo();
+  const ubicacionGps = useUbicacion();
+
+  const ubicacion = usarGps ? ubicacionGps.ubicacion : null;
   const res = useRecomendaciones(preset.perfil, catalogo, {
     topN: 10,
     maxEvitar: 5,
+    ubicacion,
+    soloRegional,
   });
 
   const stats = useMemo(() => {
@@ -122,6 +129,35 @@ export function DebugPanel() {
           </Pressable>
         ))}
       </View>
+
+      <Text style={styles.h2}>Ubicación (GPS)</Text>
+      <View style={styles.presetRow}>
+        <Pressable
+          onPress={() => setUsarGps((x) => !x)}
+          style={[styles.presetBtn, usarGps && styles.presetBtnActivo]}
+        >
+          <Text style={usarGps ? styles.presetTextActivo : styles.presetText}>
+            {usarGps ? "GPS activo" : "GPS desactivado"}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setSoloRegional((x) => !x)}
+          style={[styles.presetBtn, soloRegional && styles.presetBtnActivo]}
+        >
+          <Text style={soloRegional ? styles.presetTextActivo : styles.presetText}>
+            {soloRegional ? "Solo regional ✓" : "Solo regional ✗"}
+          </Text>
+        </Pressable>
+      </View>
+      {usarGps && (
+        <Text style={styles.meta}>
+          {ubicacionGps.cargando
+            ? "Detectando ubicación…"
+            : ubicacionGps.ubicacion
+              ? `Estado detectado: ${ubicacionGps.ubicacion}`
+              : `Sin ubicación: ${ubicacionGps.error ?? "desconocido"}`}
+        </Text>
+      )}
 
       {cargando && (
         <View style={styles.loading}>
