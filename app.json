@@ -12,6 +12,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.mexfood.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#159868",
         "foregroundImage": "./assets/images/LogoApp.png"
@@ -41,6 +43,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "249e2a8d-03d2-444c-91d4-580547b7f311"
+      }
+    },
+    "owner": "iamhn3y"
   }
 }
