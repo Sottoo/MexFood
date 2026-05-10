@@ -1,36 +1,39 @@
-// Monorepo-aware Metro config.
+// Metro config para Expo + paquetes @core/* vendoreados en ./core/.
 //
-// El front vive en apps/mexfood pero consume los paquetes @core/* desde
-// ../../packages/*. Configuramos Metro para:
-//   1. Observar el monorepo entero (hot-reload cuando cambia un @core/*).
-//   2. Resolver node_modules tanto del front como de la raíz del monorepo.
-//   3. Reescribir imports ".js" → ".ts" dentro de packages/, porque nuestros
-//      fuentes TS usan el sufijo .js para cumplir ESM (NodeNext) pero Metro
-//      no sabe hacer esa sustitución por sí solo.
+// Los paquetes @core/* viven dentro del proyecto (carpeta `core/`)
+// para que EAS Build los suba junto con el resto del bundle. Sus
+// fuentes TS usan imports con sufijo ".js" (convención ESM NodeNext)
+// que Metro no resuelve por sí solo — el hook de resolveRequest
+// reescribe ".js" → ".ts" cuando el módulo origen vive dentro de
+// `core/`.
 const { getDefaultConfig } = require("expo/metro-config");
 const path = require("path");
+const fs = require("fs");
 
 const projectRoot = __dirname;
-const monorepoRoot = path.resolve(projectRoot, "../..");
-
 const config = getDefaultConfig(projectRoot);
 
-config.watchFolders = [monorepoRoot];
-
-config.resolver.nodeModulesPaths = [
-  path.resolve(projectRoot, "node_modules"),
-  path.resolve(monorepoRoot, "node_modules"),
-];
+// Si existe el monorepo padre (entorno de dev fuera de EAS), también
+// observamos sus node_modules. En EAS Build el path no existe y se
+// salta sin error.
+const monorepoRoot = path.resolve(projectRoot, "../..");
+if (fs.existsSync(path.join(monorepoRoot, "package.json"))) {
+  config.watchFolders = [monorepoRoot];
+  config.resolver.nodeModulesPaths = [
+    path.resolve(projectRoot, "node_modules"),
+    path.resolve(monorepoRoot, "node_modules"),
+  ];
+}
 
 config.resolver.unstable_enableSymlinks = true;
 
-const packagesDirSegment = `${path.sep}packages${path.sep}`;
+const coreDirSegment = `${path.sep}core${path.sep}`;
 
 const originalResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (moduleName.endsWith(".js")) {
     const origin = context.originModulePath || "";
-    if (origin.includes(packagesDirSegment)) {
+    if (origin.includes(coreDirSegment)) {
       try {
         return context.resolveRequest(
           context,
